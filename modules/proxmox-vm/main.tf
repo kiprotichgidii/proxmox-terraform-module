@@ -1,3 +1,26 @@
+#----------------------------------------------------------
+# Random Resource Creation
+#----------------------------------------------------------
+resource "random_password" "root_password" {
+  count            = var.cloudinit.set_root_password ? 1 : 0
+  length           = 8
+  special          = true
+  override_special = "_%@"
+}
+
+resource "random_password" "user_password" {
+  count            = var.cloudinit.set_user_password ? 1 : 0
+  length           = 8
+  special          = true
+  override_special = "_%@"
+}
+
+resource "tls_private_key" "ssh_key" {
+  count     = var.generate_ssh_key ? 1 : 0
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 # ============================================================
 #  File Creation
 # ============================================================
