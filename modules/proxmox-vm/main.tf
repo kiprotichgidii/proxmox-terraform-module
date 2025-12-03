@@ -151,5 +151,12 @@ resource "proxmox_vm_qemu" "qemu_vm" {
     }
   }
 
+  lifecycle {
+    postcondition {
+      condition = length(self.network) > 0
+      error_message = "Guest agent did not return network info yet."
+    }
+  }
+
   depends_on = [proxmox_cloud_init_disk.cloudinit_ci]
 }
