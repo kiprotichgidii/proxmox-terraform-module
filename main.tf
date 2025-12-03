@@ -20,13 +20,13 @@ module "proxmox_vm" {
   proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
   vm_id        = 155
-  vm_name      = "VM-155"
+  vm_name      = "db-server"
   node         = "proxmox-pve01"
   cpu_cores    = 2
   cpu_sockets  = 1
   memory       = 4096
   boot_order   = "order=scsi0;ide2;net0"
-  template_id  = 200
+  template_id  = 9000
   clone        = true
   storage_pool = "local-lvm"
   disks = [
