@@ -91,8 +91,8 @@ data "template_cloudinit_config" "cloudinit" {
     filename     = "meta-data"
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/cloudinit-templates/meta_data.tpl", {
-      instance_id    = sha1(local.vm_name)
-      hostname = var.cloudinit.hostname != "" ? var.cloudinit.hostname : local.vm_name
+      instance_id = sha1(local.vm_name)
+      hostname    = var.cloudinit.hostname != "" ? var.cloudinit.hostname : local.vm_name
     })
   }
 
@@ -102,7 +102,7 @@ data "template_cloudinit_config" "cloudinit" {
     content = templatefile("${path.module}/cloudinit-templates/network_config.tpl", {
       enable_dhcp = var.cloudinit.enable_dhcp
       ip_address  = var.cloudinit.ip_address
-      nic        = var.cloudinit.nic
+      nic         = var.cloudinit.nic
       gateway     = var.cloudinit.gateway
       dns_servers = var.cloudinit.dns_servers
     })
@@ -168,6 +168,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   dynamic "network" {
     for_each = var.networks
     content {
+      id       = network.value.id
       model    = network.value.model
       bridge   = network.value.bridge
       macaddr  = lookup(network.value, "macaddr", null)
@@ -177,7 +178,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
 
   lifecycle {
     postcondition {
-      condition = length(self.network) > 0
+      condition     = length(self.network) > 0
       error_message = "Guest agent did not return network info yet."
     }
   }

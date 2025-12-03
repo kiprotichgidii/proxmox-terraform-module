@@ -236,8 +236,8 @@ variable "onboot" {
 
 variable "qemu_agent" {
   description = "Enable QEMU Guest Agent"
-  type        = bool
-  default     = true
+  type        = number
+  default     = 1
 }
 
 variable "template_id" {

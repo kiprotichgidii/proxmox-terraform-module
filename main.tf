@@ -31,7 +31,7 @@ module "proxmox_vm" {
   storage_pool = "local-lvm"
   disks = [
     {
-      
+
       size    = "32G"
       storage = "local-lvm"
       type    = "disk"
@@ -48,7 +48,7 @@ module "proxmox_vm" {
   ]
   cloudinit = {
     user_name = "cloudinit"
-    timezone = "Africa/Nairobi"
+    timezone  = "Africa/Nairobi"
   }
 
 }
