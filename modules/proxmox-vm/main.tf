@@ -90,9 +90,9 @@ data "template_cloudinit_config" "cloudinit" {
   part {
     filename     = "meta-data"
     content_type = "text/cloud-config"
-    content = templatefile("${path.module}/templates/cloud-init/meta_data.tpl", {
+    content = templatefile("${path.module}/cloudinit-templates/meta_data.tpl", {
       instance_id    = sha1(local.vm_name)
-      local_hostname = var.cloudinit.hostname != "" ? var.cloudinit.hostname : local.vm_name
+      hostname = var.cloudinit.hostname != "" ? var.cloudinit.hostname : local.vm_name
     })
   }
 
@@ -102,6 +102,7 @@ data "template_cloudinit_config" "cloudinit" {
     content = templatefile("${path.module}/cloudinit-templates/network_config.tpl", {
       enable_dhcp = var.cloudinit.enable_dhcp
       ip_address  = var.cloudinit.ip_address
+      nic        = var.cloudinit.nic
       gateway     = var.cloudinit.gateway
       dns_servers = var.cloudinit.dns_servers
     })
@@ -112,7 +113,7 @@ resource "proxmox_cloud_init_disk" "cloudinit_ci" {
   name           = "${local.vm_name}-cloudinit-${count.index}.iso"
   pve_node       = local.pve_node
   storage        = local.iso_storage_pool
-  user_date      = data.template_cloudinit_config.cloudinit[count.index].rendered
+  user_data      = data.template_cloudinit_config.cloudinit[count.index].rendered
   meta_data      = data.template_cloudinit_config.cloudinit[count.index].part[1].content
   network_config = data.template_cloudinit_config.cloudinit[count.index].part[2].content
 }
@@ -132,7 +133,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   bios        = var.bios
   machine     = var.machine_type
   onboot      = var.onboot
-  agent       = var.guest_agent
+  agent       = var.qemu_agent
   clone       = var.template_id
   scsihw      = var.scsi_hardware
   vm_state    = var.vm_state
@@ -156,7 +157,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
     slot    = "ide2"
     storage = local.iso_storage_pool
     volume  = proxmox_cloud_init_disk.cloudinit_ci.id
-    size    = proxmox_cloud_init_disk.cloudinit_ci.size
+    size    = proxmox_cloud_init_disk.cloudinit_ci[count.index].size
   }
 
   serial {
