@@ -45,5 +45,9 @@ module "proxmox_vm" {
       model  = "virtio"
     }
   ]
+  cloud_init = {
+    user_name = "cloudinit"
+    timezone = "Africa/Nairobi"
+  }
 
 }
