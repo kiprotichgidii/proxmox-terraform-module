@@ -137,7 +137,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   }
 
   serial {
-    id = 0
+    id   = 0
     type = "socket"
   }
 

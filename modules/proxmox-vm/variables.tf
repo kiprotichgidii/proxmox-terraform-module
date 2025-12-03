@@ -176,7 +176,7 @@ variable "cloud_init" {
     enable_dhcp              = bool
   })
   default = {
-    user                     = "cloud-user"
+    user_name                = "cloud-user"
     hostname                 = ""
     timezone                 = "UTC"
     manage_etc_hosts         = true
@@ -246,12 +246,6 @@ variable "template_id" {
   default     = null
 }
 
-variable "bios" {
-  description = "The BIOS to use i.e seabios for legacy, ovmf for UEFI"
-  type        = string
-  default     = "seabios"
-}
-
 variable "iso" {
   description = "ISO image to use if not clonning"
   type        = string
@@ -280,12 +274,6 @@ variable "tags" {
   description = "List of tags"
   type        = list(string)
   default     = []
-}
-
-variable "vm_count" {
-  description = "Number of VMs to create"
-  type        = number
-  default     = 1
 }
 
 variable "generate_ssh_key" {

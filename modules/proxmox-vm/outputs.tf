@@ -9,13 +9,13 @@ output "name" {
 }
 
 output "node" {
-value = try(proxmox_vm_qemu.qemu_vm[0].target_node)
-description = "The node the VM was created on"
+  value       = try(proxmox_vm_qemu.qemu_vm[0].target_node)
+  description = "The node the VM was created on"
 }
 
 output "status" {
-value = try(proxmox_vm_qemu.qemu_vm[0].status)
-description = "The status of the QEMU VM"
+  value       = try(proxmox_vm_qemu.qemu_vm[0].status)
+  description = "The status of the QEMU VM"
 }
 
 output "ssh_user" {
@@ -37,9 +37,9 @@ output "root_password" {
 
 output "vm_ip_addresses" {
   description = "The IP addresses assigned to the VM via cloud-init"
-  value       = {
+  value = {
     for idx, vm in proxmox_vm_qemu.qemu_vm :
-        vm.name => try(proxmox_vm_qemu.qemu_vm[0].network[0].ipaddress, "N/A")
+    vm.name => try(proxmox_vm_qemu.qemu_vm[0].network[0].ipaddress, "N/A")
   }
 }
 
@@ -47,6 +47,6 @@ output "ssh_commands" {
   description = "SSH commands to connect to the created VMs"
   value = {
     for idx, vm in proxmox_vm_qemu.qemu_vm :
-        vm.name => format("ssh -i %s %s@%s", "${path.cwd}/id_rsa.key", var.cloudinit.user_name, try(proxmox_vm_qemu.qemu_vm[0].network[0].ipaddress, "N/A"))
+    vm.name => format("ssh -i %s %s@%s", "${path.cwd}/id_rsa.key", var.cloudinit.user_name, try(proxmox_vm_qemu.qemu_vm[0].network[0].ipaddress, "N/A"))
   }
 }

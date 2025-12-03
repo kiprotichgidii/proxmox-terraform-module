@@ -14,21 +14,20 @@ terraform {
 module "proxmox_vm" {
   source = "./modules/proxmox-vm"
   # provider Variables
-  proxmox_api_url = "https://192.168.1.2:8006/api2/json"
-  proxmox_user = "terraform@pve"
-  proxmox_api_token_id = "terraform@pve!mytoken"
+  proxmox_api_url          = "https://192.168.1.2:8006/api2/json"
+  proxmox_user             = "terraform@pve"
+  proxmox_api_token_id     = "terraform@pve!mytoken"
   proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
-  vm_count = 1
-  vm_id = 155
-  vm_name = "VM-155"
-  node = "proxmox-pve01"
-  cpu_cores = 2
-  cpu_sockets = 1
-  memory = 4096
-  boot_order = "order=scsi0;ide2;net0"
-  template_id = 200
-  clone = true
+  vm_id        = 155
+  vm_name      = "VM-155"
+  node         = "proxmox-pve01"
+  cpu_cores    = 2
+  cpu_sockets  = 1
+  memory       = 4096
+  boot_order   = "order=scsi0;ide2;net0"
+  template_id  = 200
+  clone        = true
   storage_pool = "local-lvm"
   disks = [
     {
@@ -41,9 +40,9 @@ module "proxmox_vm" {
   ]
   networks = [
     {
-      id      = "0"
-      bridge  = "vmbr0"
-      model   = "virtio"
+      id     = "0"
+      bridge = "vmbr0"
+      model  = "virtio"
     }
   ]
 
