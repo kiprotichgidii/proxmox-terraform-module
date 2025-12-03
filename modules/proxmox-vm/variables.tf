@@ -101,7 +101,7 @@ variable "machine_type" {
 variable "disks" {
   description = "List of disk configurations"
   type = list(object({
-    id       = string
+    id       = optional(string)
     size     = string
     storage  = string
     type     = string
@@ -148,32 +148,32 @@ variable "ssh_keys" {
   default     = []
 }
 
-variable "cloud_init" {
+variable "cloudinit" {
   description = "SSH Public keys for cloudinit user"
   type = object({
-    user_name                = string
-    hostname                 = string
-    timezone                 = string
-    manage_etc_hosts         = bool
-    preserve_hostname        = bool
-    enable_ssh_password_auth = bool
-    disable_ssh_root_login   = bool
-    lock_root_user_password  = bool
-    set_root_password        = bool
-    set_user_password        = bool
-    lock_user_password       = bool
-    ssh_user_fullname        = string
-    ssh_user_shell           = string
-    disable_ipv6             = bool
-    package_update           = bool
-    package_upgrade          = bool
-    packages                 = list(string)
-    runcmds                  = list(string)
-    ip_address               = string
-    nic                      = string
-    gateway                  = string
-    dns_servers              = list(string)
-    enable_dhcp              = bool
+    user_name                = optional(string)
+    hostname                 = optional(string)
+    timezone                 = optional(string)
+    manage_etc_hosts         = optional(bool)
+    preserve_hostname        = optional(bool)
+    enable_ssh_password_auth = optional(bool)
+    disable_ssh_root_login   = optional(bool)
+    lock_root_user_password  = optional(bool)
+    set_root_password        = optional(bool)
+    set_user_password        = optional(bool)
+    lock_user_password       = optional(bool)
+    ssh_user_fullname        = optional(string)
+    ssh_user_shell           = optional(string)
+    disable_ipv6             = optional(bool)
+    package_update           = optional(bool)
+    package_upgrade          = optional(bool)
+    packages                 = optional(list(string))
+    runcmds                  = optional(list(string))
+    ip_address               = optional(string)
+    nic                      = optional(string)
+    gateway                  = optional(string)
+    dns_servers              = optional(list(string))
+    enable_dhcp              = optional(bool)
   })
   default = {
     user_name                = "cloud-user"

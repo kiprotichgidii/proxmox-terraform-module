@@ -1,11 +1,11 @@
 # Terraform Provider Versions
 terraform {
-  required_version = ">= 1.4.0"
+  required_version = ">= 1.10.0"
 
   required_providers {
     proxmox = {
       source  = "Telmate/proxmox"
-      version = ">= 2.9.11"
+      version = "= 3.0.2-rc06"
     }
   }
 }
@@ -31,6 +31,7 @@ module "proxmox_vm" {
   storage_pool = "local-lvm"
   disks = [
     {
+      
       size    = "32G"
       storage = "local-lvm"
       type    = "disk"
@@ -45,7 +46,7 @@ module "proxmox_vm" {
       model  = "virtio"
     }
   ]
-  cloud_init = {
+  cloudinit = {
     user_name = "cloudinit"
     timezone = "Africa/Nairobi"
   }
