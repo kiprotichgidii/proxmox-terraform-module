@@ -215,6 +215,12 @@ variable "qemu_agent" {
   default     = 1
 }
 
+variable "agent_timeout" {
+  description = "QEMU Guest Agent timeout in seconds"
+  type        = number
+  default     = 120
+}
+
 variable "template_id" {
   description = "The VM ID of the template to clone from"
   type        = number

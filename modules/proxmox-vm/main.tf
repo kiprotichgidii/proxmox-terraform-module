@@ -136,6 +136,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   machine            = var.machine_type
   start_at_node_boot = var.autostart
   agent              = var.qemu_agent
+  agent_timeout      = var.agent_timeout
   clone_id           = var.template_id
   scsihw             = var.scsi_hardware
   vm_state           = var.vm_state

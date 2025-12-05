@@ -32,7 +32,7 @@ module "proxmox_vm" {
   storage_pool = "nvme-storage"
   disks = [
     {
-      size    = "32G"
+      size    = "40G"
       storage = "nvme-storage"
       type    = "disk"
       slot    = "scsi0"
@@ -53,4 +53,24 @@ module "proxmox_vm" {
     enable_dhcp   = true
   }
 
+}
+
+output "vm_id" {
+  value = module.proxmox_vm.vmid
+}
+
+output "vm_name" {
+  value = module.proxmox_vm.name
+}
+
+output "ssh_user_name" {
+  value = module.proxmox_vm.ssh_user
+}
+
+output "vm_ip_addresses" {
+  value = module.proxmox_vm.vm_ip_addresses
+}
+
+output "ssh_commands" {
+  value = module.proxmox_vm.ssh_commands
 }
