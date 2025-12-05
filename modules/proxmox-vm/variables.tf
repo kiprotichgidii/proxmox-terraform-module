@@ -218,7 +218,7 @@ variable "qemu_agent" {
 variable "agent_timeout" {
   description = "QEMU Guest Agent timeout in seconds"
   type        = number
-  default     = 120
+  default     = 180
 }
 
 variable "template_id" {
@@ -259,6 +259,12 @@ variable "tags" {
 
 variable "generate_ssh_key" {
   description = "Generate an SSH key pair"
+  type        = bool
+  default     = true
+}
+
+variable "skip_ipv6" {
+  description = "Tell proxmox that acquiring an IPv6 address from the qemu guest agent isn't required"
   type        = bool
   default     = true
 }

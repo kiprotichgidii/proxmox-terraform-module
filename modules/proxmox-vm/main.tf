@@ -140,6 +140,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   clone_id           = var.template_id
   scsihw             = var.scsi_hardware
   vm_state           = var.vm_state
+  skip_ipv6          = var.skip_ipv6
 
   dynamic "disk" {
     for_each = var.disks
@@ -153,13 +154,11 @@ resource "proxmox_vm_qemu" "qemu_vm" {
       discard = lookup(disk.value, "discard", true)
     }
   }
-  # Define a disk block with media type cdrom which references the generated cloud-init disk
+  # Define a disk block for the generated cloud-init disk
   disk {
     type    = "cdrom"
     slot    = "ide2"
-    #storage = local.iso_storage_pool
     iso     = proxmox_cloud_init_disk.cloudinit_ci[count.index].id
-    #size    = proxmox_cloud_init_disk.cloudinit_ci[count.index].size
   }
 
   serial {
