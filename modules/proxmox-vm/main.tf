@@ -73,8 +73,8 @@ data "template_cloudinit_config" "cloudinit" {
       set_root_password        = var.cloudinit.set_root_password
       root_password            = local.root_password_hash
       user_name                = var.cloudinit.user_name
-      user_fullname            = var.cloudinit.ssh_user_fullname
-      user_shell               = var.cloudinit.ssh_user_shell
+      user_fullname            = var.cloudinit.user_fullname
+      user_shell               = var.cloudinit.user_shell
       user_password            = local.user_password_hash
       set_user_password        = var.cloudinit.set_user_password
       lock_user_password       = var.cloudinit.lock_user_password

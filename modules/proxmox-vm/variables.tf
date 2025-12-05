@@ -152,6 +152,8 @@ variable "cloudinit" {
   description = "SSH Public keys for cloudinit user"
   type = object({
     user_name                = optional(string)
+    user_fullname            = optional(string)
+    user_shell               = optional(string)
     hostname                 = optional(string)
     timezone                 = optional(string)
     manage_etc_hosts         = optional(bool)
@@ -162,8 +164,6 @@ variable "cloudinit" {
     set_root_password        = optional(bool)
     set_user_password        = optional(bool)
     lock_user_password       = optional(bool)
-    ssh_user_fullname        = optional(string)
-    ssh_user_shell           = optional(string)
     disable_ipv6             = optional(bool)
     package_update           = optional(bool)
     package_upgrade          = optional(bool)
@@ -175,6 +175,7 @@ variable "cloudinit" {
     dns_servers              = optional(list(string))
     enable_dhcp              = optional(bool)
   })
+  nullable = false
   default = {
     user_name                = "cloud-user"
     hostname                 = ""
