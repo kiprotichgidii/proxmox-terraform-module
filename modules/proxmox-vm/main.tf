@@ -110,7 +110,7 @@ data "template_cloudinit_config" "cloudinit" {
 }
 resource "proxmox_cloud_init_disk" "cloudinit_ci" {
   count          = var.vm_count
-  name           = "${local.vm_name}-cloudinit-${count.index}.iso"
+  name           = "${local.vm_name}-cloudinit-${count.index}"
   pve_node       = local.pve_node
   storage        = local.iso_storage_pool
   user_data      = data.template_cloudinit_config.cloudinit[count.index].rendered
@@ -126,17 +126,19 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   vmid        = var.vm_id + count.index
   name        = "${local.vm_name}-${count.index}"
   target_node = local.pve_node
-  cores       = var.cpu_cores
-  sockets     = var.cpu_sockets
-  memory      = var.memory
-  boot        = var.boot_order
-  bios        = var.bios
-  machine     = var.machine_type
-  onboot      = var.onboot
-  agent       = var.qemu_agent
-  clone       = var.template_id
-  scsihw      = var.scsi_hardware
-  vm_state    = var.vm_state
+  cpu {
+    cores   = var.cpu_cores
+    sockets = var.cpu_sockets
+  }
+  memory             = var.memory
+  boot               = var.boot_order
+  bios               = var.bios
+  machine            = var.machine_type
+  start_at_node_boot = var.autostart
+  agent              = var.qemu_agent
+  clone_id           = var.template_id
+  scsihw             = var.scsi_hardware
+  vm_state           = var.vm_state
 
   dynamic "disk" {
     for_each = var.disks
@@ -152,12 +154,11 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   }
   # Define a disk block with media type cdrom which references the generated cloud-init disk
   disk {
-    type    = "ide"
-    media   = "cdrom"
+    type    = "cdrom"
     slot    = "ide2"
-    storage = local.iso_storage_pool
-    volume  = proxmox_cloud_init_disk.cloudinit_ci.id
-    size    = proxmox_cloud_init_disk.cloudinit_ci[count.index].size
+    #storage = local.iso_storage_pool
+    iso     = proxmox_cloud_init_disk.cloudinit_ci[count.index].id
+    #size    = proxmox_cloud_init_disk.cloudinit_ci[count.index].size
   }
 
   serial {

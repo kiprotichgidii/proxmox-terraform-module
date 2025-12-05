@@ -14,10 +14,11 @@ terraform {
 module "proxmox_vm" {
   source = "./modules/proxmox-vm"
   # provider Variables
-  proxmox_api_url          = "https://192.168.1.2:8006/api2/json"
-  proxmox_user             = "terraform@pve"
-  proxmox_api_token_id     = "terraform@pve!mytoken"
-  proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
+  proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
+  proxmox_user     = "terraform@pve"
+  proxmox_password = "Xcqt0689"
+  #proxmox_api_token_id     = "terraform@pve!mytoken"
+  #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
   vm_id        = 155
   vm_name      = "db-server"
@@ -28,12 +29,11 @@ module "proxmox_vm" {
   boot_order   = "order=scsi0;ide2;net0"
   template_id  = 9000
   clone        = true
-  storage_pool = "local-lvm"
+  storage_pool = "nvme-storage"
   disks = [
     {
-
       size    = "32G"
-      storage = "local-lvm"
+      storage = "nvme-storage"
       type    = "disk"
       slot    = "scsi0"
       format  = "qcow2"
@@ -47,8 +47,10 @@ module "proxmox_vm" {
     }
   ]
   cloudinit = {
-    user_name = "cloudinit"
-    timezone  = "Africa/Nairobi"
+    user_name     = "cloudinit"
+    user_fullname = "Gedion Kiprotich"
+    timezone      = "Africa/Nairobi"
+    enable_dhcp   = true
   }
 
 }

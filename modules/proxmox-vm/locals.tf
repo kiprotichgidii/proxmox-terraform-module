@@ -2,7 +2,7 @@ locals {
   # PVE attributes
   vm_name          = var.vm_name != "" ? var.vm_name : "vm-${var.vm_id}"
   pve_node         = var.node
-  iso_storage_pool = var.storage_pool
+  iso_storage_pool = var.iso_storage_pool
 
   # Hash the user password
   root_password_hash = var.cloudinit.set_root_password ? bcrypt(random_password.root_password[0].result) : ""

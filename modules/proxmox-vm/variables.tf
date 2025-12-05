@@ -101,7 +101,7 @@ variable "machine_type" {
 variable "disks" {
   description = "List of disk configurations"
   type = list(object({
-    id       = optional(string)
+    id       = optional(string, "")
     size     = string
     storage  = string
     type     = string
@@ -113,7 +113,6 @@ variable "disks" {
   }))
   default = [
     {
-      id      = ""
       size    = "20G"
       storage = "local-lvm"
       type    = "disk"
@@ -128,93 +127,68 @@ variable "networks" {
     id       = string
     bridge   = string
     model    = string
-    macaddr  = optional(string)
-    firewall = optional(bool)
+    macaddr  = optional(string, null)
+    firewall = optional(bool, false)
   }))
   default = [
     {
-      id       = "0"
-      bridge   = "vmbr0"
-      model    = "virtio"
-      macaddr  = null
-      firewall = false
+      id     = "0"
+      bridge = "vmbr0"
+      model  = "virtio"
     }
   ]
+}
+
+variable "cloudinit" {
+  type = object({
+    user_name                = optional(string, "cloud-user")
+    hostname                 = optional(string, "")
+    timezone                 = optional(string, "UTC")
+    manage_etc_hosts         = optional(bool, true)
+    preserve_hostname        = optional(bool, true)
+    enable_ssh_password_auth = optional(bool, false)
+    disable_ssh_root_login   = optional(bool, true)
+    lock_root_user_password  = optional(bool, false)
+    set_root_password        = optional(bool, false)
+    set_user_password        = optional(bool, false)
+    lock_user_password       = optional(bool, false)
+    user_fullname            = optional(string, "Cloud User")
+    user_shell               = optional(string, "/bin/bash")
+    disable_ipv6             = optional(bool, false)
+    package_update           = optional(bool, true)
+    package_upgrade          = optional(bool, false)
+    ip_address               = optional(string, "192.168.1.254/24")
+    nic                      = optional(string, "ens3")
+    gateway                  = optional(string, "192.168.1.1")
+    enable_dhcp              = optional(bool, false)
+    packages = optional(list(string),
+      [
+        "qemu-guest-agent",
+        "vim",
+        "wget",
+        "curl",
+        "unzip",
+        "git"
+    ])
+    runcmds = optional(list(string),
+      [
+        "systemctl daemon-reload",
+        "systemctl enable --now qemu-guest-agent",
+        "systemctl restart systemd-networkd"
+    ])
+    dns_servers = optional(list(string),
+      [
+        "8.8.8.8",
+        "8.8.4.4"
+    ])
+  })
+  default = {}
 }
 
 variable "ssh_keys" {
   description = "List of SSH public keys to add to the VM"
   type        = list(string)
   default     = []
-}
-
-variable "cloudinit" {
-  description = "SSH Public keys for cloudinit user"
-  type = object({
-    user_name                = optional(string)
-    user_fullname            = optional(string)
-    user_shell               = optional(string)
-    hostname                 = optional(string)
-    timezone                 = optional(string)
-    manage_etc_hosts         = optional(bool)
-    preserve_hostname        = optional(bool)
-    enable_ssh_password_auth = optional(bool)
-    disable_ssh_root_login   = optional(bool)
-    lock_root_user_password  = optional(bool)
-    set_root_password        = optional(bool)
-    set_user_password        = optional(bool)
-    lock_user_password       = optional(bool)
-    disable_ipv6             = optional(bool)
-    package_update           = optional(bool)
-    package_upgrade          = optional(bool)
-    packages                 = optional(list(string))
-    runcmds                  = optional(list(string))
-    ip_address               = optional(string)
-    nic                      = optional(string)
-    gateway                  = optional(string)
-    dns_servers              = optional(list(string))
-    enable_dhcp              = optional(bool)
-  })
-  nullable = false
-  default = {
-    user_name                = "cloud-user"
-    hostname                 = ""
-    timezone                 = "UTC"
-    manage_etc_hosts         = true
-    preserve_hostname        = true
-    enable_ssh_password_auth = false
-    disable_ssh_root_login   = true
-    lock_root_user_password  = false
-    set_root_password        = false
-    set_user_password        = false
-    lock_user_password       = false
-    ssh_user_fullname        = "Cloud User"
-    ssh_user_shell           = "/bin/bash"
-    disable_ipv6             = false
-    package_update           = true
-    package_upgrade          = true
-    ip_address               = "192.168.1.254/24"
-    nic                      = "ens3"
-    gateway                  = "192.168.1.1"
-    enable_dhcp              = false
-    dns_servers = [
-      "8.8.8.8",
-      "8.8.4.4"
-    ]
-    packages = [
-      "qemu-guest-agent",
-      "vim",
-      "wget",
-      "curl",
-      "unzip",
-      "git"
-    ]
-    runcmds = [
-      "systemctl daemon-reload",
-      "systemctl enable --now qemu-guest-agent",
-      "systemctl restart systemd-networkd"
-    ]
-  }
 }
 
 variable "vm_state" {
@@ -229,7 +203,7 @@ variable "clone" {
   default     = null
 }
 
-variable "onboot" {
+variable "autostart" {
   description = "Set VM to start on host boot"
   type        = bool
   default     = true
@@ -265,10 +239,10 @@ variable "storage_pool" {
   default     = "local-lvm"
 }
 
-variable "autostart" {
-  description = "Autostart flag"
-  type        = bool
-  default     = true
+variable "iso_storage_pool" {
+  description = "The storage pool to use for the cloud-init ISO disk"
+  type        = string
+  default     = "local"
 }
 
 variable "tags" {
