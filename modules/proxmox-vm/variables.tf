@@ -156,11 +156,11 @@ variable "cloudinit" {
     user_shell               = optional(string, "/bin/bash")
     disable_ipv6             = optional(bool, false)
     package_update           = optional(bool, true)
-    package_upgrade          = optional(bool, false)
+    package_upgrade          = optional(bool, true)
     ip_address               = optional(string, "192.168.1.254/24")
     nic                      = optional(string, "ens18")
     gateway                  = optional(string, "192.168.1.1")
-    enable_dhcp              = optional(bool, false)
+    enable_dhcp              = optional(bool, true)
     packages = optional(list(string),
       [
         "qemu-guest-agent",

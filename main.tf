@@ -20,6 +20,7 @@ module "proxmox_vm" {
   #proxmox_api_token_id     = "terraform@pve!mytoken"
   #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
+  #vm_count     = 2
   vm_id        = 155
   vm_name      = "app-server"
   node         = "proxmox-pve01"
@@ -27,7 +28,7 @@ module "proxmox_vm" {
   cpu_sockets  = 1
   memory       = 4096
   boot_order   = "order=scsi0;ide2;net0"
-  template_id  = 9005
+  template_id  = 9003
   clone        = true
   storage_pool = "nvme-storage"
   iso_storage_pool = "nvme-storage"
@@ -51,7 +52,7 @@ module "proxmox_vm" {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
     ip_address    = "192.168.1.130/24"
-    nic           = "ens18"
+    enable_dhcp   = false
   }
 
 }

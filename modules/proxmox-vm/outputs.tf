@@ -39,7 +39,7 @@ output "vm_ip_addresses" {
   description = "The IP addresses assigned to the VM via cloud-init"
   value = {
     for idx, vm in proxmox_vm_qemu.qemu_vm :
-    vm.name => try(vm.ssh_host, "N/A")
+    vm.name => try(vm.default_ipv4_address, "N/A")
   }
 }
 
@@ -47,6 +47,6 @@ output "ssh_commands" {
   description = "SSH commands to connect to the created VMs"
   value = {
     for idx, vm in proxmox_vm_qemu.qemu_vm :
-    vm.name => format("ssh -i %s %s@%s", "${path.cwd}/id_rsa.key", var.cloudinit.user_name, try(vm.ssh_host, "N/A"))
+    vm.name => format("ssh -i %s %s@%s", "${path.cwd}/id_rsa.key", var.cloudinit.user_name, try(vm.default_ipv4_address, "N/A"))
   }
 }
