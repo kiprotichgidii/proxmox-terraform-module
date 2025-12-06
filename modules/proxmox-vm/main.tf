@@ -110,7 +110,7 @@ data "template_cloudinit_config" "cloudinit" {
 }
 resource "proxmox_cloud_init_disk" "cloudinit_ci" {
   count          = var.vm_count
-  name           = "vm-${var.vm_id}-cloudinit-${count.index}"
+  name           = "${var.vm_name}-cloudinit-${count.index}"
   pve_node       = local.pve_node
   storage        = local.iso_storage_pool
   user_data      = data.template_cloudinit_config.cloudinit[count.index].rendered
