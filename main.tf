@@ -22,7 +22,7 @@ module "proxmox_vm" {
   # Qemu VM variables
   #vm_count     = 2
   vm_id        = 155
-  vm_name      = "app-server"
+  vm_name      = "db-server"
   node         = "proxmox-pve01"
   cpu_cores    = 2
   cpu_sockets  = 1
@@ -52,6 +52,7 @@ module "proxmox_vm" {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
     ip_address    = "192.168.1.130/24"
+    nic           = "enp6s18"
     enable_dhcp   = false
   }
 

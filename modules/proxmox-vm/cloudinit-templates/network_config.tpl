@@ -13,7 +13,7 @@ ethernets:
     gateway4: ${gateway}
     nameservers:
       addresses:
-%{ for dns in dns_servers ~}
+      %{ for dns in dns_servers ~}
         - ${dns}
-%{ endfor ~}
+      %{ endfor ~}
 %{ endif }
