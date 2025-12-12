@@ -156,9 +156,9 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   }
   # Define a disk block for the generated cloud-init disk
   disk {
-    type    = "cdrom"
-    slot    = "ide2"
-    iso     = proxmox_cloud_init_disk.cloudinit_ci[count.index].id
+    type = "cdrom"
+    slot = "ide2"
+    iso  = proxmox_cloud_init_disk.cloudinit_ci[count.index].id
   }
 
   serial {
