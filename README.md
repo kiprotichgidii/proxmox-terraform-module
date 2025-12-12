@@ -35,26 +35,8 @@ The user/token used must have at least `PVEVMAdmin` and `Datastore.Allocate` per
 
 ## 🛠 Usage
 
-### Quick Start
-Minimal configuration to get a VM running with specific Template ID.
-
-```hcl
-module "my_vm" {
-  source = "./modules/proxmox-vm"
-
-  # Connection Details
-  proxmox_api_url  = "https://10.0.0.1:8006/api2/json"
-  proxmox_user     = "terraform@pve"
-  proxmox_password = "supersecretpassword"
-
-  # VM Settings
-  vm_name     = "simple-vm"
-  node        = "pve1"
-  template_id = 9000
-}
-```
-
-### Advanced Usage (Static IP, Multiple Disks, UEFI)
+### Usage with Static IP, Multiple Disks, UEFI
+This is an example that shows how to use the module to create a VM with multiple disks, UEFI boot, and static IP configuration.
 
 ```hcl
 # Terraform Provider Versions
