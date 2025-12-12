@@ -123,7 +123,7 @@ resource "proxmox_cloud_init_disk" "cloudinit_ci" {
 # ============================================================
 resource "proxmox_vm_qemu" "qemu_vm" {
   count       = var.vm_count
-  vmid        = var.vm_id + count.index
+  vmid        = var.vm_id == 0 ? null : var.vm_id + count.index
   name        = "${local.vm_name}-${count.index}"
   target_node = local.pve_node
   cpu {
