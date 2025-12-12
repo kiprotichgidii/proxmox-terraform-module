@@ -7,9 +7,7 @@ ethernets:
       name: "en*"
     dhcp4: true
 %{ else }
-  alleths:
-    match:
-      name: "en*"
+  ${nic}:
     dhcp4: no
     addresses: [${ip_address}]
     gateway4: ${gateway}

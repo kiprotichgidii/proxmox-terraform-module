@@ -28,7 +28,7 @@ module "proxmox_vm" {
   cpu_sockets  = 1
   memory       = 4096
   boot_order   = "order=scsi0;ide2;net0"
-  template_id  = 9003
+  template_id  = 9005
   clone        = true
   storage_pool = "nvme-storage"
   iso_storage_pool = "nvme-storage"
@@ -51,7 +51,7 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    ip_address    = "192.168.1.130/24"
+    ip_address    = "192.168.1.132/24"
     #nic           = "enp6s18"
     enable_dhcp   = false
   }
