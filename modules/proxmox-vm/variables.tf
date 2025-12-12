@@ -49,6 +49,7 @@ variable "vm_count" {
 variable "vm_id" {
   description = "The VM ID for the Proxmox VM"
   type        = number
+  default     = 0
 }
 
 variable "vm_name" {

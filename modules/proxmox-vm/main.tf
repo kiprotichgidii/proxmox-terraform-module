@@ -123,7 +123,7 @@ resource "proxmox_cloud_init_disk" "cloudinit_ci" {
 # ============================================================
 resource "proxmox_vm_qemu" "qemu_vm" {
   count       = var.vm_count
-  vmid        = var.vm_id + count.index
+  vmid        = var.vm_id == 0 ? null : var.vm_id + count.index
   name        = "${local.vm_name}-${count.index}"
   target_node = local.pve_node
   cpu {
@@ -142,6 +142,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   vm_state           = var.vm_state
   skip_ipv6          = var.skip_ipv6
 
+  # Disk Configuration
   dynamic "disk" {
     for_each = var.disks
     content {
@@ -160,12 +161,20 @@ resource "proxmox_vm_qemu" "qemu_vm" {
     slot = "ide2"
     iso  = proxmox_cloud_init_disk.cloudinit_ci[count.index].id
   }
-
+  # EFI disk for UEFI Boot
+  dynamic "efidisk" {
+    for_each = var.bios == "ovmf" ? [1] : []
+    content {
+      efitype = "4m"
+      storage = var.storage_pool
+    }
+  }
+  # Serial Console
   serial {
     id   = 0
     type = "socket"
   }
-
+  # Network Configuration
   dynamic "network" {
     for_each = var.networks
     content {
@@ -176,7 +185,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
       firewall = lookup(network.value, "firewall", false)
     }
   }
-
+  # Lifecycle
   lifecycle {
     postcondition {
       condition     = length(self.network) > 0
