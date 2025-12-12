@@ -14,32 +14,32 @@ terraform {
 module "proxmox_vm" {
   source = "./modules/proxmox-vm"
   # provider Variables
-  proxmox_api_url  = "https://192.168.1.3:8006/api2/json"
-  proxmox_user     = "root@pam"
-  proxmox_password = "Nerdy@Kim!"
+  proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
+  proxmox_user     = "terraform@pve"
+  proxmox_password = "Xcqt0689"
   #proxmox_api_token_id     = "terraform@pve!mytoken"
   #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
   #vm_count     = 2
   vm_name          = "db-server"
-  node             = "pve03"
+  node             = "proxmox-pve01"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
   boot_order       = "order=scsi0;ide2;net0"
   bios             = "ovmf"
-  template_id      = 9001
+  template_id      = 9006
   clone            = true
-  storage_pool     = "zfs-pool"
+  storage_pool     = "nvme-storage"
   iso_storage_pool = "local"
   disks = [
     {
       size    = "40G"
-      storage = "zfs-pool"
+      storage = "nvme-storage"
       type    = "disk"
       slot    = "scsi0"
-      format  = "raw"
-    },
+      format  = "qcow2"
+    }
   ]
   networks = [
     {
@@ -51,8 +51,7 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    ip_address    = "192.168.1.132/24"
-    nic           = "enp6s18"
+    ip_address    = "192.168.1.130/24"
     enable_dhcp   = false
   }
 
