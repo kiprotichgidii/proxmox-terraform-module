@@ -14,31 +14,31 @@ terraform {
 module "proxmox_vm" {
   source = "./modules/proxmox-vm"
   # provider Variables
-  proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
-  proxmox_user     = "terraform@pve"
-  proxmox_password = "Xcqt0689"
+  proxmox_api_url  = "https://192.168.1.3:8006/api2/json"
+  proxmox_user     = "root@pam"
+  proxmox_password = "Nerdy@Kim!"
   #proxmox_api_token_id     = "terraform@pve!mytoken"
   #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
   #vm_count     = 2
   vm_name          = "db-server"
-  node             = "proxmox-pve01"
+  node             = "pve03"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
   boot_order       = "order=scsi0;ide2;net0"
   bios             = "ovmf"
-  template_id      = 9003
+  template_id      = 9001
   clone            = true
-  storage_pool     = "nvme-storage"
-  iso_storage_pool = "nvme-storage"
+  storage_pool     = "zfs-pool"
+  iso_storage_pool = "local"
   disks = [
     {
       size    = "40G"
-      storage = "nvme-storage"
+      storage = "zfs-pool"
       type    = "disk"
       slot    = "scsi0"
-      format  = "qcow2"
+      format  = "raw"
     },
   ]
   networks = [
