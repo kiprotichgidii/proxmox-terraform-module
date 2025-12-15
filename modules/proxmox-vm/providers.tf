@@ -1,3 +1,29 @@
+# Provider Configurations
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "telmate/proxmox"
+      version = "= 3.0.2-rc06"
+    }
+
+    local = {
+      source = "hashicorp/local"
+    }
+
+    tls = {
+      source = "hashicorp/tls"
+    }
+
+    random = {
+      source = "hashicorp/random"
+    }
+
+    template = {
+      source = "hashicorp/template"
+    }
+  }
+}
+
 provider "proxmox" {
   pm_api_url          = var.proxmox_api_url
   pm_user             = var.proxmox_user
