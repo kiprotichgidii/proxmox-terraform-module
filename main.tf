@@ -12,8 +12,8 @@ terraform {
 
 # Proxmox VM Resource
 module "proxmox_vm" {
-  #source = "./modules/proxmox-vm"
-  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+  source = "./modules/proxmox-vm"
+  #source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
   proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
   proxmox_user     = "terraform@pve"
@@ -22,14 +22,14 @@ module "proxmox_vm" {
   #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
   #vm_count     = 2
-  vm_name          = "db-server"
+  vm_name          = "oracle-linux"
   node             = "proxmox-pve01"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
   boot_order       = "order=scsi0;ide2;net0"
   bios             = "ovmf"
-  template_id      = 9006
+  template_id      = 9007
   clone            = true
   storage_pool     = "nvme-storage"
   iso_storage_pool = "local"
@@ -52,8 +52,8 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    ip_address    = "192.168.1.130/24"
-    enable_dhcp   = false
+    #ip_address    = "192.168.1.130/24"
+    #enable_dhcp   = false
   }
 
 }
