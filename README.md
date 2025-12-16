@@ -41,9 +41,9 @@ Clone this repository:
 ```bash
 git clone https://github.com/kiprotichgidii/terraform-proxmox-module.git
 ```
-Then edit the main.tf file to match your Proxmox environment.
+Then edit the `main.tf` file in the root of the repo to match your Proxmox environment.
 
-### Usage with Static IP, Multiple Disks, UEFI
+### Example Usage with Static IP, Multiple Disks, UEFI
 This is an example that shows how to use the module to create a VM with multiple disks, UEFI boot, and static IP configuration.
 
 ```hcl
@@ -62,7 +62,6 @@ terraform {
 # Proxmox VM Resource
 module "proxmox_vm" {
   source = "./modules/proxmox-vm"
-  # source = "git::https://github.com/kiprotichgidii/terraform-proxmox-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
   proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
   proxmox_user     = "terraform@pve"
