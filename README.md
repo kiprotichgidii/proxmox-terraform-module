@@ -49,7 +49,7 @@ qm template 9003
 ```bash
 git clone https://github.com/kiprotichgidii/terraform-proxmox-module.git
 ```
-Then edit the `main.tf` file in the root of the repo to match your Proxmox environment.
+Then edit the `main.tf` file in the root of the repo to match your Proxmox environment and configure your VM resources.
 
 ### Example Usage with Static IP, Multiple Disks, UEFI
 This is an example that shows how to use the module to create a VM with multiple disks, UEFI boot, and static IP configuration.
