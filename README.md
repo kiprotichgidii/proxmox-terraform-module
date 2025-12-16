@@ -191,17 +191,31 @@ List of objects with the following properties:
 
 ### Cloud-Init (`cloudinit`)
 Configuration object for the VM internals:
-| Key | Default | Description |
-|-----|---------|-------------|
-| `user_name` | `"cloud-user"`| Default SSH user. |
-| `user_password` | (Auto) | Sets user password if enabled. |
-| `enable_ssh_password_auth`| `false` | Allow password auth for SSH. |
-| `ip_address` | `"192.168.1.254/24"` | Static IP (CIDR format). |
-| `gateway` | `"192.168.1.1"` | Network gateway. |
-| `enable_dhcp` | `true` | overrides static IP settings. |
-| `packages` | `[...]` | List of `apt` packages to install. |
-| `runcmds` | `[...]` | List of shell commands to run on first boot. |
-| `ssh_keys` | `[]` | List of **additional** public keys to inject. |
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `user_name` | string | `"cloud-user"`| Default SSH user. |
+| `hostname` | string | `""` | Custom hostname. |
+| `timezone` | string | `"UTC"` | System timezone. |
+| `manage_etc_hosts` | bool | `true` | Allow Cloud-Init to manage /etc/hosts. |
+| `preserve_hostname` | bool | `true` | Preserve hostname across reboots. |
+| `enable_ssh_password_auth`| bool | `false` | Allow password auth for SSH. |
+| `disable_ssh_root_login` | bool | `true` | Disable SSH root login. |
+| `lock_root_user_password` | bool | `false` | Lock root password. |
+| `set_root_password` | bool | `false` | Generate random root password. |
+| `set_user_password` | bool | `false` | Generate random user password. |
+| `lock_user_password` | bool | `false` | Lock default user password. |
+| `user_fullname` | string | `"Cloud User"` | Full name (GECOS). |
+| `user_shell` | string | `"/bin/bash"` | Default user shell. |
+| `disable_ipv6` | bool | `false` | Disable IPv6 networking. |
+| `package_update` | bool | `true` | Run `apt-get update`. |
+| `package_upgrade` | bool | `true` | Run `apt-get upgrade`. |
+| `ip_address` | string | `"192.168.1.254/24"` | Static IP (CIDR format). |
+| `nic` | string | `"ens18"` | Interface name (e.g., `ens18`). |
+| `gateway` | string | `"192.168.1.1"` | Network gateway. |
+| `enable_dhcp` | bool | `true` | Enable DHCP (overrides static). |
+| `packages` | list | `[...]` | List of `apt` packages to install. |
+| `runcmds` | list | `[...]` | List of shell commands to run on first boot. |
+| `dns_servers` | list | `[...]` | List of DNS servers. |
 
 ## 📤 Outputs
 
