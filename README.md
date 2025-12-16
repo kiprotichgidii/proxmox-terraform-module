@@ -83,7 +83,7 @@ module "proxmox_vm" {
   iso_storage_pool = "local"
   disks = [
     {
-      size    = "20G"
+      size    = "40G"
       storage = "nvme-storage"
       type    = "disk"
       slot    = "scsi0"
