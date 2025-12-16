@@ -189,7 +189,7 @@ List of objects with the following properties:
 - `macaddr`: Static MAC address (optional).
 - `firewall`: Enable Proxmox firewall (Default: `false`).
 
-### Cloud-Init (`cloudinit`)
+### Cloud-Init Support(`cloudinit`)
 Configuration object for the VM internals:
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
@@ -229,16 +229,23 @@ Configuration object for the VM internals:
 
 ## ⚠️ Common Issues & Troubleshooting
 
-### "Required attribute vm_id not specified"
-This error occurs if `vm_id` is missing in `main.tf` logic.
-**Fix**: Explicitly set `vm_id = 0` in your module block to enable automatic ID assignment by Proxmox.
-
-### "Image not found"
+#### ❌ "`Image not found`"
 Ensure the `storage` pool specified in `disks` exists on the target node.
 
-### Cloud-Init not applying
+#### Cloud-Init not applying
 - Ensure the OS template has `cloud-init` installed.
 - Verify the `ide2` (Cloud-Init drive) is present in boot order or attached.
+
+#### ❌ `500 you can't move to the same storage with same format`
+
+➡️ The VM is being created with a disk that is already on the same storage, using the same format, and Proxmox refuses the “move/convert” operation.
+
+This only happens when Proxmox thinks you are trying to move or convert a disk that is already in the correct place.
+🛠: Set `disk_format` to `raw` if template is `qcow2` or Use a different storage pool.
+
+#### ❌ `CentOS Stream images may fail to boot when using UEFI`
+CentOS Stream images may fail to boot when using UEFI (`bios = "ovmf"`).
+🛠: Ensure your base image supports UEFI. If issues persist, switch to `bios = "seabios"`.
 
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome. To contirubute:

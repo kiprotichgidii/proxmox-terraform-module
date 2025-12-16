@@ -31,7 +31,7 @@ module "proxmox_vm" {
   bios             = "ovmf"
   template_id      = 9018
   clone            = true
-  storage_pool     = "nvme-storage"
+  storage_pool     = "local-lvm"
   iso_storage_pool = "local"
   disks = [
     {
