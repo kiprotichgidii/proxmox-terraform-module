@@ -35,7 +35,8 @@ Ensure your environment meets these requirements before using the module.
 The user/token used must have at least `PVEVMAdmin` and `Datastore.Allocate` permissions on the target node and storage.
 
 ## 🛠 Usage
-1. Create Proxmox VM Template
+### Create Proxmox VM Template
+
 To use this modules, you need a VM template which will be clonesd by Terraform. Create a template using the disto's cloud image, e.g Debian, Ubuntu, etc.
 ```bash
 qm create 9003 --name ubuntu24-template
@@ -43,7 +44,7 @@ qm set 9003 --scsi0 local-lvm:0,import-from=/root/cloud-images/ubuntu-24.04-serv
 qm template 9003
 ```
 
-2. Clone this repository:
+### Clone this repository
 
 ```bash
 git clone https://github.com/kiprotichgidii/terraform-proxmox-module.git
