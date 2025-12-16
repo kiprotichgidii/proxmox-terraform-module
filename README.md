@@ -235,19 +235,18 @@ Ensure the `storage` pool specified in `disks` exists on the target node.
 #### ❌ Error: `500 can't upload to storage type 'lvmthin'`
 Cloud-init ISOs must be stored on file-based storage (e.g. `local`).
 They cannot be uploaded to `lvmthin` or `local-lvm`.
-
-🛠: Set `iso_storage_pool` to `local` or any other configured storage pool.
+  - 🛠 **Fix** : Set `iso_storage_pool` to `local` or any other configured storage pool.
 
 #### ❌ Error: `500 you can't move to the same storage with same format`
 
 ➡️ The VM is being created with a disk that is already on the same storage, using the same format, and Proxmox refuses the “move/convert” operation.
 
 This only happens when Proxmox thinks you are trying to move or convert a disk that is already in the correct place.
-🛠: Set `disk_format` to `raw` if template is `qcow2` or Use a different storage pool.
+  - 🛠 **Fix** : Set `disk_format` to `raw` if template is `qcow2` or Use a different storage pool.
 
 #### ❌ Error: `CentOS Stream images may fail to boot when using UEFI`
 CentOS Stream images may fail to boot when using UEFI (`bios = "ovmf"`).
-🛠: Ensure your base image supports UEFI. If issues persist, switch to `bios = "seabios"`.
+  - 🛠 **Fix** : Ensure your base image supports UEFI. If issues persist, switch to `bios = "seabios"`.
 
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome. To contirubute:
