@@ -229,12 +229,13 @@ Configuration object for the VM internals:
 
 ## ⚠️ Common Issues & Troubleshooting
 
-#### ❌ "`Image not found`"
+#### ❌ `Image not found`
 Ensure the `storage` pool specified in `disks` exists on the target node.
 
-#### Cloud-Init not applying
-- Ensure the OS template has `cloud-init` installed.
-- Verify the `ide2` (Cloud-Init drive) is present in boot order or attached.
+#### ❌ `500 can't upload to storage type 'lvmthin'`
+Cloud-init ISOs must be stored on file-based storage (e.g. `local`).
+They cannot be uploaded to `lvmthin` or `local-lvm`.
+🛠: Set `iso_storage_pool` to `local` or any other configured storage pool.
 
 #### ❌ `500 you can't move to the same storage with same format`
 
