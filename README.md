@@ -218,5 +218,13 @@ Ensure the `storage` pool specified in `disks` exists on the target node.
 - Ensure the OS template has `cloud-init` installed.
 - Verify the `ide2` (Cloud-Init drive) is present in boot order or attached.
 
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome. To contirubute:
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## 📄 License
 MIT License.
