@@ -1,6 +1,7 @@
 # Proxmox VM Terraform Module
 
 A comprehensive Terraform module for provisioning Virtual Machines on Proxmox VE. This module simplifies the creation of VMs by handling cloning, Cloud-Init configuration, storage, networking, and optional automatic secret generation.
+To be honest, I only started developing this module to help me with my own use case. I work a lot with Proxmox VE and I needed a quick way to provision VMs in minutes, and Terraform is my close friend, so I went for it.
 
 ## 🚀 Features
 
