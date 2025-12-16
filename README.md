@@ -235,6 +235,7 @@ Ensure the `storage` pool specified in `disks` exists on the target node.
 #### ❌ Error: `500 can't upload to storage type 'lvmthin'`
 Cloud-init ISOs must be stored on file-based storage (e.g. `local`).
 They cannot be uploaded to `lvmthin` or `local-lvm`.
+
 🛠: Set `iso_storage_pool` to `local` or any other configured storage pool.
 
 #### ❌ Error: `500 you can't move to the same storage with same format`
