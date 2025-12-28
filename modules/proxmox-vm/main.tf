@@ -24,6 +24,7 @@ resource "tls_private_key" "ssh_key" {
 # ============================================================
 #  File Creation
 # ============================================================
+
 resource "local_sensitive_file" "root_password" {
   count           = var.cloudinit.set_root_password ? 1 : 0
   content         = random_password.root_password[count.index].result
@@ -50,6 +51,29 @@ resource "local_sensitive_file" "ssh_public_key" {
   content         = tls_private_key.ssh_key[count.index].public_key_openssh
   filename        = "${path.cwd}/id_rsa.pub"
   file_permission = "0644"
+}
+
+# ============================================================
+#  IP Address Calculation
+# ============================================================
+locals {
+  # Parse the provided IP address (e.g., "192.168.1.130/24")
+  ip_cidr_split = split("/", var.cloudinit.ip_address)
+  ip_address    = local.ip_cidr_split[0]
+  cidr_suffix   = length(local.ip_cidr_split) > 1 ? local.ip_cidr_split[1] : "24"
+  ip_parts      = split(".", local.ip_address)
+
+  # Generate list of IPs by incrementing the last octet
+  generated_ips = [
+    for i in range(var.vm_count) :
+    format("%s.%s.%s.%d/%s",
+      local.ip_parts[0],
+      local.ip_parts[1],
+      local.ip_parts[2],
+      tonumber(local.ip_parts[3]) + i,
+      local.cidr_suffix
+    )
+  ]
 }
 
 # ============================================================
@@ -101,7 +125,7 @@ data "template_cloudinit_config" "cloudinit" {
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/cloudinit-templates/network_config.tpl", {
       enable_dhcp = var.cloudinit.enable_dhcp
-      ip_address  = var.cloudinit.ip_address
+      ip_address  = local.generated_ips[count.index]
       nic         = var.cloudinit.nic
       gateway     = var.cloudinit.gateway
       dns_servers = var.cloudinit.dns_servers
