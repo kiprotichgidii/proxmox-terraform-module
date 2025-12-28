@@ -54,29 +54,6 @@ resource "local_sensitive_file" "ssh_public_key" {
 }
 
 # ============================================================
-#  IP Address Calculation
-# ============================================================
-locals {
-  # Parse the provided IP address (e.g., "192.168.1.130/24")
-  ip_cidr_split = split("/", var.cloudinit.ip_address)
-  ip_address    = local.ip_cidr_split[0]
-  cidr_suffix   = length(local.ip_cidr_split) > 1 ? local.ip_cidr_split[1] : "24"
-  ip_parts      = split(".", local.ip_address)
-
-  # Generate list of IPs by incrementing the last octet
-  generated_ips = [
-    for i in range(var.vm_count) :
-    format("%s.%s.%s.%d/%s",
-      local.ip_parts[0],
-      local.ip_parts[1],
-      local.ip_parts[2],
-      tonumber(local.ip_parts[3]) + i,
-      local.cidr_suffix
-    )
-  ]
-}
-
-# ============================================================
 #  Generate Cloudinit ISO
 # ============================================================
 data "template_cloudinit_config" "cloudinit" {
@@ -116,7 +93,7 @@ data "template_cloudinit_config" "cloudinit" {
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/cloudinit-templates/meta_data.tpl", {
       instance_id = sha1(local.vm_name)
-      hostname    = var.cloudinit.hostname != "" ? var.cloudinit.hostname : "${local.vm_name}-${count.index}"
+      hostname    = var.cloudinit.hostname != "" ? var.cloudinit.hostname : "${local.vm_name}-${count.index + 1}"
     })
   }
 
@@ -134,7 +111,7 @@ data "template_cloudinit_config" "cloudinit" {
 }
 resource "proxmox_cloud_init_disk" "cloudinit_ci" {
   count          = var.vm_count
-  name           = "${var.vm_name}-cloudinit-${count.index}"
+  name           = "${var.vm_name}-cloudinit-${count.index + 1}"
   pve_node       = local.pve_node
   storage        = local.iso_storage_pool
   user_data      = data.template_cloudinit_config.cloudinit[count.index].rendered
@@ -148,7 +125,7 @@ resource "proxmox_cloud_init_disk" "cloudinit_ci" {
 resource "proxmox_vm_qemu" "qemu_vm" {
   count       = var.vm_count
   vmid        = var.vm_id == 0 ? null : var.vm_id + count.index
-  name        = "${local.vm_name}-${count.index}"
+  name        = "${local.vm_name}-${count.index + 1}"
   target_node = local.pve_node
   cpu {
     cores   = var.cpu_cores
