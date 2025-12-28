@@ -116,7 +116,7 @@ data "template_cloudinit_config" "cloudinit" {
     content_type = "text/cloud-config"
     content = templatefile("${path.module}/cloudinit-templates/meta_data.tpl", {
       instance_id = sha1(local.vm_name)
-      hostname    = var.cloudinit.hostname != "" ? var.cloudinit.hostname : local.vm_name
+      hostname    = var.cloudinit.hostname != "" ? var.cloudinit.hostname : "${local.vm_name}-${count.index}"
     })
   }
 
