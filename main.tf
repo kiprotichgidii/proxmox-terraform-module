@@ -21,8 +21,8 @@ module "proxmox_vm" {
   #proxmox_api_token_id     = "terraform@pve!mytoken"
   #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
   # Qemu VM variables
-  vm_count    = 2
-  vm_name     = "k8snode"
+  vm_count    = 1
+  vm_name     = "ubuntu-latest"
   node        = "proxmox-pve01"
   cpu_cores   = 2
   cpu_sockets = 1
@@ -35,7 +35,7 @@ module "proxmox_vm" {
   iso_storage_pool = "local"
   disks = [
     {
-      size    = "100G"
+      size    = "50G"
       storage = "nvme-storage"
       type    = "disk"
       slot    = "scsi0"
@@ -52,7 +52,7 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    ip_address    = "192.168.1.130/24"
+    ip_address    = "192.168.1.140/24"
     enable_dhcp   = false
     nic           = "enp6s18"
   }

@@ -68,6 +68,6 @@ output "ssh_commands" {
   description = "SSH commands to connect to the created VMs"
   value = {
     for idx, vm in proxmox_vm_qemu.qemu_vm :
-    vm.name => format("ssh -i %s %s@%s", "${path.cwd}/id_rsa.key", var.cloudinit.user_name, try(vm.default_ipv4_address, "N/A"))
+    vm.name => var.generate_ssh_key ? format("ssh -i %s %s@%s", "${path.cwd}/id_rsa.key", var.cloudinit.user_name, try(vm.default_ipv4_address, "N/A")) : format("ssh %s@%s", var.cloudinit.user_name, try(vm.default_ipv4_address, "N/A"))
   }
 }
