@@ -69,7 +69,8 @@ terraform {
 
 # Proxmox VM Resource
 module "proxmox_vm" {
-  source = "./modules/proxmox-vm"
+  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+  # source = "./modules/proxmox-vm"
   # provider Variables
   proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
   proxmox_user     = "terraform@pve"
@@ -247,7 +248,7 @@ CentOS Stream images may fail to boot when using UEFI (`bios = "ovmf"`).
   - 🛠 **Fix** : Ensure your base image supports UEFI. If issues persist, switch to `bios = "seabios"`.
 
 ## 🤝 Contributing
-Contributions, issues, and feature requests are welcome. To contirubute:
+Contributions, issues, and feature requests are welcome. To contribute:
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
@@ -255,4 +256,4 @@ Contributions, issues, and feature requests are welcome. To contirubute:
 5. Open a Pull Request
 
 ## 📄 License
-MIT License.
+Apache 2.0
