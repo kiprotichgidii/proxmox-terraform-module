@@ -16,27 +16,27 @@ module "proxmox_vm" {
   source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
   proxmox_api_url  = var.proxmox_api_url
-  proxmox_user     = var.proxmox_user
-  proxmox_password = var.proxmox_password
-  #proxmox_api_token_id     = var.proxmox_api_token_id
-  #proxmox_api_token_secret = var.proxmox_api_token_secret
+  #proxmox_user     = var.proxmox_user
+  #proxmox_password = var.proxmox_password
+  proxmox_api_token_id     = var.proxmox_api_token_id
+  proxmox_api_token_secret = var.proxmox_api_token_secret
   # Qemu VM variables
   vm_count    = 1
-  vm_name     = "ubuntu-latest"
-  node        = "proxmox-pve01"
+  vm_name     = "ubuntu-resolute"
+  node        = "pve02"
   cpu_cores   = 2
   cpu_sockets = 1
   memory      = 4096
   boot_order  = "order=scsi0;ide2;net0"
   #bios             = "ovmf"
-  template_id      = 9003
+  template_id      = 8805
   clone            = true
-  storage_pool     = "local-lvm"
+  storage_pool     = "zfs-pool"
   iso_storage_pool = "local"
   disks = [
     {
       size    = "50G"
-      storage = "nvme-storage"
+      storage = "zfs-pool"
       type    = "disk"
       slot    = "scsi0"
       format  = "qcow2"
@@ -52,9 +52,9 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    ip_address    = "192.168.1.140/24"
-    enable_dhcp   = false
-    nic           = "enp6s18"
+    #ip_address    = "192.168.1.140/24"
+    #enable_dhcp   = false
+    #nic           = "enp6s18"
   }
 
 }

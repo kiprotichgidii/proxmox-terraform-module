@@ -44,12 +44,24 @@ qm set 9003 --scsi0 local-lvm:0,import-from=/root/cloud-images/ubuntu-24.04-serv
 qm template 9003
 ```
 
-### Clone this repository
+### Create a main.tf file and a varibale.tf file
 
 ```bash
-git clone https://github.com/kiprotichgidii/terraform-proxmox-module.git
+touch main.tf && touch varibale.tf
 ```
-Then edit the `main.tf` file in the root of the repo to match your Proxmox environment and configure your VM resources.
+Copy paste the content from the `main.tf` and `variables.tf` file in the `example` folder to match your Proxmox environment and configure your VM resources. Then create a terraform.tfvars file and add your variables as follows:
+
+```bash
+cat <<EOF > terraform.tfvars
+
+proxmox_api_url          = "https://your-proxmox-ip:8006/api2/json"
+proxmox_user             = "terraform@pve"
+proxmox_password         = "your-proxmox-password"
+proxmox_api_token_id     = "your-token-id"
+proxmox_api_token_secret = "your-token-secret"
+
+EOF
+```
 
 ### Example Usage with Static IP, Multiple Disks, UEFI
 This is an example that shows how to use the module to create a VM with multiple disks, UEFI boot, and static IP configuration.
@@ -72,11 +84,11 @@ module "proxmox_vm" {
   source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # source = "./modules/proxmox-vm"
   # provider Variables
-  proxmox_api_url  = "https://192.168.1.2:8006/api2/json"
-  proxmox_user     = "terraform@pve"
-  proxmox_password = "Xcqt0689"
-  #proxmox_api_token_id     = "terraform@pve!mytoken"
-  #proxmox_api_token_secret = "570e9eba-4e0b-4e67-b5f0-d6714cc2559e"
+  proxmox_api_url  = var.proxmox_api_url
+  proxmox_user     = var.proxmox_user
+  proxmox_password = var.proxmox_password
+  #proxmox_api_token_id     = var.proxmox_api_token_id
+  #proxmox_api_token_secret = var.proxmox_api_token_secret
   # Qemu VM variables
   #vm_count     = 2
   vm_name          = "db-server"
