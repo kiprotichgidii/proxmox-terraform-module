@@ -34,6 +34,31 @@ Ensure your environment meets these requirements before using the module.
 ### Proxmox User Permissions
 The user/token used must have at least `PVEVMAdmin` and `Datastore.Allocate` permissions on the target node and storage.
 
+Login to your Proxmox VE host via SSH and create an API token with permissions as follows:
+
+For PVE 9 and newer:
+
+```bash
+pveum role add TerraformProv -privs "Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Pool.Audit Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.PowerMgmt SDN.Use"
+pveum user add terraform-prov@pve --password <password>
+pveum aclmod / -user terraform-prov@pve -role TerraformProv
+```
+
+For PVE 8 and older:
+
+```bash
+pveum role add TerraformProv -privs "Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Monitor VM.Migrate VM.PowerMgmt SDN.Use"
+pveum user add terraform-prov@pve --password <password>
+pveum aclmod / -user terraform-prov@pve -role TerraformProv
+```
+
+It is recommended to use API tokens instead of passwords.
+
+```bash
+pveum user token add terraform-prov@pve mytoken
+```
+For some reason, using an API token with privilege separation on, does not work with Terraform. On your PVE console. go to Datacenter => Permissions => API Tokens => Click on the API token you just created => Disable privilege separation, and everything should work as expected.
+
 ## 🛠 Usage
 ### Create Proxmox VM Template
 
@@ -56,7 +81,6 @@ cat <<EOF > terraform.tfvars
 
 proxmox_api_url          = "https://your-proxmox-ip:8006/api2/json"
 proxmox_user             = "terraform@pve"
-proxmox_password         = "your-proxmox-password"
 proxmox_api_token_id     = "your-token-id"
 proxmox_api_token_secret = "your-token-secret"
 
