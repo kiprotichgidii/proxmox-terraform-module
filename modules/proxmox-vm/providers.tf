@@ -6,6 +6,7 @@ provider "proxmox" {
   pm_api_token_secret = var.proxmox_api_token_secret
   pm_tls_insecure     = var.proxmox_tls_insecure
   pm_timeout          = 600
+  pm_debug            = true
 }
 
 # Provider Configurations
