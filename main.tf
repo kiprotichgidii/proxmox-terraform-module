@@ -22,14 +22,14 @@ module "proxmox_vm" {
   proxmox_api_token_secret = var.proxmox_api_token_secret
   # Qemu VM variables
   vm_count    = 1
-  vm_name     = "ubuntu-resolute"
+  vm_name     = "rocky-10"
   node        = "pve02"
   cpu_cores   = 2
   cpu_sockets = 1
   memory      = 4096
   boot_order  = "order=scsi0;ide2;net0"
   #bios             = "ovmf"
-  template_id      = 8805
+  template_id      = 8806
   clone            = true
   storage_pool     = "zfs-pool"
   iso_storage_pool = "local"
@@ -52,8 +52,8 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    #ip_address    = "192.168.1.140/24"
-    #enable_dhcp   = false
+    ip_address    = "192.168.1.108/24"
+    enable_dhcp   = false
     #nic           = "enp6s18"
   }
 
