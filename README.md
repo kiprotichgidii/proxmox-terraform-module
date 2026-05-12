@@ -44,10 +44,10 @@ qm set 9003 --scsi0 local-lvm:0,import-from=/root/cloud-images/ubuntu-24.04-serv
 qm template 9003
 ```
 
-### Create a main.tf file and a varibale.tf file
+### Create a main.tf file and a variables.tf file
 
 ```bash
-touch main.tf && touch varibale.tf
+touch main.tf && touch variables.tf
 ```
 Copy paste the content from the `main.tf` and `variables.tf` file in the `example` folder to match your Proxmox environment and configure your VM resources. Then create a terraform.tfvars file and add your variables as follows:
 
