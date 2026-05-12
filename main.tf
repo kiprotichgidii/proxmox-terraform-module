@@ -15,8 +15,8 @@ module "proxmox_vm" {
   #source = "./modules/proxmox-vm"
   source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
-  proxmox_api_url  = var.proxmox_api_url
-  #proxmox_user     = var.proxmox_user
+  proxmox_api_url = var.proxmox_api_url
+  proxmox_user    = var.proxmox_user
   #proxmox_password = var.proxmox_password
   proxmox_api_token_id     = var.proxmox_api_token_id
   proxmox_api_token_secret = var.proxmox_api_token_secret
