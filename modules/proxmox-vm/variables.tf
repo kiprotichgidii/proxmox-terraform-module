@@ -161,7 +161,7 @@ variable "cloudinit" {
     ip_address               = optional(string, "192.168.1.254/24")
     nic                      = optional(string, "ens18")
     gateway                  = optional(string, "192.168.1.1")
-    enable_dhcp              = optional(bool, true)
+    enable_dhcp              = optional(bool, false)
     packages = optional(list(string),
       [
         "qemu-guest-agent",
