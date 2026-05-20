@@ -22,21 +22,21 @@ module "proxmox_vm" {
   proxmox_api_token_secret = var.proxmox_api_token_secret
   # Qemu VM variables
   vm_count    = 1
-  vm_name     = "rocky-10"
-  node        = "pve02"
+  vm_name     = "rocky-linux0"
+  node        = "proxmox-pve01"
   cpu_cores   = 2
   cpu_sockets = 1
   memory      = 4096
   boot_order  = "order=scsi0;ide2;net0"
   #bios             = "ovmf"
-  template_id      = 8806
+  template_id      = 9004
   clone            = true
-  storage_pool     = "zfs-pool"
+  storage_pool     = "nvme-storage"
   iso_storage_pool = "local"
   disks = [
     {
       size    = "50G"
-      storage = "zfs-pool"
+      storage = "nvme-storage"
       type    = "disk"
       slot    = "scsi0"
       format  = "qcow2"
@@ -45,14 +45,14 @@ module "proxmox_vm" {
   networks = [
     {
       id     = "0"
-      bridge = "vmbr0"
+      bridge = "vmbr1"
       model  = "virtio"
     }
   ]
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    ip_address    = "192.168.1.108/24"
+    ip_address    = "172.20.30.10/24"
     enable_dhcp   = false
     #nic           = "enp6s18"
   }
