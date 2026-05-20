@@ -52,9 +52,8 @@ module "proxmox_vm" {
   cloudinit = {
     user_fullname = "Gedion Kiprotich"
     timezone      = "Africa/Nairobi"
-    #ip_address    = "172.16.100.10/24"
-    #gateway       = "172.16.100.1"
-    #enable_dhcp   = false
+    ip_address    = "172.16.100.10/24"
+    gateway       = "172.16.100.1"
     #nic           = "enp6s18"
   }
 
