@@ -160,7 +160,7 @@ variable "cloudinit" {
     package_upgrade          = optional(bool, true)
     ip_address               = optional(string, "192.168.1.254/24")
     nic                      = optional(string, "ens18")
-    gateway                  = optional(string, null)
+    gateway                  = optional(string, "192.168.1.1")
     enable_dhcp              = optional(bool, true)
     packages = optional(list(string),
       [
