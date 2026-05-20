@@ -1,13 +1,12 @@
 #cloud-config
 version: 2
 ethernets:
-%{ if enable_dhcp }
   alleths:
     match:
       name: "en*"
+%{ if enable_dhcp }
     dhcp4: true
 %{ else }
-  ${nic}:
     dhcp4: no
     addresses: [${ip_address}]
     gateway4: ${gateway}
