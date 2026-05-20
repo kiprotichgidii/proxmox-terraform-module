@@ -27,5 +27,7 @@ variable "proxmox_api_token_secret" {
 }
 
 variable "ssh_keys" {
-  description = ""
+  description = "List of SSH public keys to add to the VM"
+  type        = list(string)
+  default     = []
 }
