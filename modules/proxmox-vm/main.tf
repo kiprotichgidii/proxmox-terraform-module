@@ -196,3 +196,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
 
   depends_on = [proxmox_cloud_init_disk.cloudinit_ci]
 }
+
+#============================================================
+# The End
+#============================================================
