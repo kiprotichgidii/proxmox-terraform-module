@@ -128,7 +128,7 @@ variable "networks" {
     id       = string
     bridge   = string
     model    = string
-    tag      = int
+    tag      = number
     macaddr  = optional(string, null)
     firewall = optional(bool, false)
   }))
@@ -137,6 +137,7 @@ variable "networks" {
       id     = "0"
       bridge = "vmbr0"
       model  = "virtio"
+      tag    = "0"
     }
   ]
 }
