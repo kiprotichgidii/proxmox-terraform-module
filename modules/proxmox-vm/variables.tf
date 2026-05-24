@@ -137,7 +137,7 @@ variable "networks" {
       id     = "0"
       bridge = "vmbr0"
       model  = "virtio"
-      tag    = "0"
+      tag    = "30"
     }
   ]
 }
