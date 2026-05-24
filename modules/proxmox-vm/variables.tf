@@ -128,7 +128,7 @@ variable "networks" {
     id       = string
     bridge   = string
     model    = string
-    tag      = optional(number, "0")
+    tag      = optional(number)
     macaddr  = optional(string, null)
     firewall = optional(bool, false)
   }))
