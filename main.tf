@@ -49,7 +49,6 @@ module "proxmox_vm" {
       id     = "0"
       bridge = "vmbr0"
       model  = "virtio"
-      tag    = "30"
     }
   ]
   cloudinit = {
