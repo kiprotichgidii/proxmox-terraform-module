@@ -182,6 +182,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
       id       = network.value.id
       model    = network.value.model
       bridge   = network.value.bridge
+      tag      = network.value.tag
       macaddr  = lookup(network.value, "macaddr", null)
       firewall = lookup(network.value, "firewall", false)
     }
