@@ -9,11 +9,11 @@ variable "proxmox_user" {
   default     = "terraform@pve"
 }
 
-variable "proxmox_password" {
-  description = "Proxmox Password"
-  type        = string
-  sensitive   = true
-}
+# variable "proxmox_password" {
+#   description = "Proxmox Password"
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "proxmox_api_token_id" {
   description = "Proxmox API Token ID"
