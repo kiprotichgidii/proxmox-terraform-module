@@ -24,14 +24,14 @@ module "proxmox_vm" {
   generate_ssh_key         = false
   # Qemu VM variables
   vm_count         = 1
-  vm_name          = "AlmaLinux"
+  vm_name          = "AlmaLinux-9"
   node             = "proxmox-pve01"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
-  boot_order       = "order=scsi0;ide2;net0"
   bios             = "ovmf"
-  template_id      = 9010
+  boot_order       = "order=scsi0;ide2"
+  template_id      = 9016
   clone            = true
   storage_pool     = "nvme-storage"
   iso_storage_pool = "local"
@@ -46,18 +46,19 @@ module "proxmox_vm" {
   ]
   networks = [
     {
-      id     = "0"
+      id     = "10"
       bridge = "vmbr0"
       model  = "virtio"
+      tag    = "30"
     }
   ]
   cloudinit = {
-    user_fullname = "Gedion Kiprotich"
-    user_name     = "ec2-user"
-    timezone      = "Africa/Nairobi"
-    ip_address    = "172.20.30.10/24"
-    gateway       = "172.20.30.1"
-    #enable_dhcp = true
+    user_fullname     = "Gedion Kiprotich"
+    set_user_password = true
+    timezone          = "Africa/Nairobi"
+    #ip_address        = "172.20.30.10/24"
+    #gateway           = "172.20.30.1"
+    enable_dhcp = true
   }
 
 }
