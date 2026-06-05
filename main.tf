@@ -12,8 +12,8 @@ terraform {
 
 # Proxmox VM Resource
 module "proxmox_vm" {
-  #source = "./modules/proxmox-vm"
-  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+  source = "./modules/proxmox-vm"
+  #source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
   proxmox_api_url = var.proxmox_api_url
   proxmox_user    = var.proxmox_user
@@ -24,14 +24,14 @@ module "proxmox_vm" {
   generate_ssh_key         = false
   # Qemu VM variables
   vm_count         = 2
-  vm_name          = "AlmaLinux-10"
+  vm_name          = "AlmaLinux-8"
   node             = "proxmox-pve01"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
   bios             = "ovmf"
   boot_order       = "order=scsi0;ide2"
-  template_id      = 9010
+  template_id      = 9024
   clone            = true
   storage_pool     = "nvme-storage"
   iso_storage_pool = "local"
@@ -53,9 +53,8 @@ module "proxmox_vm" {
     }
   ]
   cloudinit = {
-    user_fullname     = "Gedion Kiprotich"
-    set_user_password = true
-    timezone          = "Africa/Nairobi"
+    user_fullname = "Gedion Kiprotich"
+    timezone      = "Africa/Nairobi"
     #ip_address        = "172.20.30.10/24"
     #gateway           = "172.20.30.1"
     enable_dhcp = true
