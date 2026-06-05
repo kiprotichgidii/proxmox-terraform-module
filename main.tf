@@ -12,8 +12,8 @@ terraform {
 
 # Proxmox VM Resource
 module "proxmox_vm" {
-  source = "./modules/proxmox-vm"
-  #source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+  #source = "./modules/proxmox-vm"
+  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
   proxmox_api_url = var.proxmox_api_url
   proxmox_user    = var.proxmox_user
