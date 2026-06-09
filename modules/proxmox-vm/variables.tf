@@ -46,12 +46,6 @@ variable "vm_count" {
   default     = 1
 }
 
-variable "master_nodes" {
-  description = "Number of nodes to bootstrap as master, when deploying infra for k8s."
-  type        = number
-  default     = 1
-}
-
 variable "vm_id" {
   description = "The VM ID for the Proxmox VM"
   type        = number
