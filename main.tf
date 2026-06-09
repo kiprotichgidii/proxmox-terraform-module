@@ -23,15 +23,15 @@ module "proxmox_vm" {
   ssh_keys                 = var.ssh_keys
   generate_ssh_key         = false
   # Qemu VM variables
-  vm_count         = 2
-  vm_name          = "AlmaLinux-8"
+  #vm_count         = 2
+  vm_name          = "AmazonLinux"
   node             = "proxmox-pve01"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
   bios             = "ovmf"
   boot_order       = "order=scsi0;ide2"
-  template_id      = 9024
+  template_id      = 9002
   clone            = true
   storage_pool     = "nvme-storage"
   iso_storage_pool = "local"
