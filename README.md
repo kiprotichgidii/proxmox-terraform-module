@@ -87,9 +87,7 @@ proxmox_api_token_secret = "your-token-secret"
 EOF
 ```
 
-### Example Usage with Static IP, Multiple Disks, UEFI
-This is an example that shows how to use the module to create a VM with multiple disks, UEFI boot, and static IP configuration.
-
+### Example: Static IP, Multiple Disks, UEFI
 ```hcl
 # Terraform Provider Versions
 terraform {
@@ -103,46 +101,45 @@ terraform {
   }
 }
 
-# Proxmox VM Resource
 module "proxmox_vm" {
   source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
-  # source = "./modules/proxmox-vm"
-  # provider Variables
-  proxmox_api_url  = var.proxmox_api_url
-  proxmox_user     = var.proxmox_user
-  proxmox_password = var.proxmox_password
-  #proxmox_api_token_id     = var.proxmox_api_token_id
-  #proxmox_api_token_secret = var.proxmox_api_token_secret
-  # Qemu VM variables
-  #vm_count     = 2
+
+  proxmox_api_url          = var.proxmox_api_url
+  proxmox_user             = var.proxmox_user
+  proxmox_api_token_id     = var.proxmox_api_token_id
+  proxmox_api_token_secret = var.proxmox_api_token_secret
+  ssh_keys                 = var.ssh_keys
+
   vm_name          = "db-server"
-  node             = "proxmox-pve01"
+  node             = "pve01"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
-  boot_order       = "order=scsi0;ide2;net0"
   bios             = "ovmf"
+  boot_order       = "order=scsi0;ide2"
   template_id      = 9003
   clone            = true
-  storage_pool     = "nvme-storage"
+  storage_pool     = "local-lvm"
   iso_storage_pool = "local"
+
   disks = [
     {
       size    = "40G"
-      storage = "nvme-storage"
+      storage = "zfs-pool"
       type    = "disk"
       slot    = "scsi0"
-      format  = "qcow2"
+      format  = "raw"
     },
     {
       size    = "100G"
-      storage = "nvme-storage"
+      storage = "zfs-pool"
       type    = "disk"
       slot    = "scsi1"
-      format  = "qcow2"
+      format  = "raw"
       cache   = "writeback"
     }
   ]
+
   networks = [
     {
       id     = "0"
@@ -150,36 +147,48 @@ module "proxmox_vm" {
       model  = "virtio"
     }
   ]
+
   cloudinit = {
-    user_fullname = "Gedion Kiprotich"
+    user_name     = "admin"
+    user_fullname = "Admin User"
     timezone      = "Africa/Nairobi"
     ip_address    = "192.168.1.130/24"
-    #nic           = "enp6s18"
-    enable_dhcp   = false
+    gateway       = "192.168.1.1"
+    #nic           = "enp6s18"   # virtio on q35; check with 'ip link' on your template
   }
-
-}
-
-output "vm_id" {
-  value = module.proxmox_vm.vmid
-}
-
-output "vm_name" {
-  value = module.proxmox_vm.name
-}
-
-output "ssh_user_name" {
-  value = module.proxmox_vm.ssh_user
-}
-
-output "vm_ip_addresses" {
-  value = module.proxmox_vm.vm_ip_addresses
 }
 
 output "ssh_commands" {
   value = module.proxmox_vm.ssh_commands
 }
 ```
+
+### Example: Password Configuration
+
+```hcl
+module "proxmox_vm" {
+  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+
+  # ... (other required variables)
+
+  cloudinit = {
+    user_name = "admin"
+
+    # Option A: provide your own plaintext password
+    user_password = "MySecureP@ss1"
+
+    # Option B: auto-generate a random password (saved to user_password.txt)
+    # set_user_password = true
+
+    # Allow console/SSH password login (disabled by default)
+    enable_ssh_password_auth = true
+  }
+}
+```
+
+> [!NOTE]
+> When using a static IP, always set `gateway` and `nic` explicitly. The NIC name depends on your VM template — run `ip link` inside the template to confirm it (typically `ens18` for SCSI, `enp6s18` for virtio on a q35 machine).
+
 
 ## ⚙️ Configuration Reference
 
