@@ -268,22 +268,27 @@ Configuration object for in-guest settings applied via Cloud-Init:
 | `timezone` | string | `"UTC"` | System timezone (e.g. `"Africa/Nairobi"`). |
 | `manage_etc_hosts` | bool | `true` | Allow Cloud-Init to manage `/etc/hosts`. |
 | `preserve_hostname` | bool | `true` | Preserve hostname across reboots. |
-| `enable_ssh_password_auth` | bool | `false` | Allow password-based SSH authentication. |
+| `enable_ssh_password_auth` | bool | `false` | Allow password-based SSH authentication. Set to `true` to log in with a password over SSH. |
 | `disable_ssh_root_login` | bool | `true` | Disable SSH login as root. |
 | `lock_root_user_password` | bool | `false` | Lock the root account password. |
-| `set_root_password` | bool | `false` | Auto-generate a random root password (saved to `root_password.txt`). |
-| `set_user_password` | bool | `false` | Auto-generate a random user password (saved to `user_password.txt`). |
+| `set_root_password` | bool | `false` | Auto-generate a random root password (saved to `root_password.txt`). Ignored if `root_password` is set. |
+| `root_password` | string | `null` | Plaintext root password. Takes precedence over `set_root_password`. No file is written to disk. |
+| `set_user_password` | bool | `false` | Auto-generate a random user password (saved to `user_password.txt`). Ignored if `user_password` is set. |
+| `user_password` | string | `null` | Plaintext user password. Takes precedence over `set_user_password`. No file is written to disk. |
 | `lock_user_password` | bool | `false` | Lock the default user password. |
 | `disable_ipv6` | bool | `false` | Disable IPv6 networking via sysctl. |
 | `ip_address` | string | `"192.168.1.254/24"` | Static IP in CIDR format. Used when `enable_dhcp = false`. |
 | `gateway` | string | `"192.168.1.1"` | Default gateway. Used when `enable_dhcp = false`. |
-| `nic` | string | `"ens18"` | Network interface name inside the guest (e.g. `"enp6s18"` for virtio on q35). |
+| `nic` | string | `"ens18"` | Network interface name inside the guest (e.g. `"enp6s18"` for virtio on q35). Run `ip link` on your template to confirm. |
 | `enable_dhcp` | bool | `false` | Use DHCP instead of a static IP. When `true`, `ip_address` and `gateway` are ignored. |
 | `dns_servers` | list(string) | `["8.8.8.8", "8.8.4.4"]` | List of DNS resolver addresses. |
 | `package_update` | bool | `true` | Run package index update on first boot. |
 | `package_upgrade` | bool | `true` | Run full package upgrade on first boot. |
 | `packages` | list(string) | `["qemu-guest-agent", "vim", ...]` | Additional packages to install on first boot. |
 | `runcmds` | list(string) | `["systemctl enable --now qemu-guest-agent", ...]` | Shell commands to execute on first boot. |
+
+> [!NOTE]
+> Password login over SSH requires **both** a password to be set (`user_password` or `set_user_password = true`) **and** `enable_ssh_password_auth = true`. Console login only requires a password to be set.
 
 ## 📤 Outputs
 
@@ -317,6 +322,21 @@ They cannot be uploaded to `lvmthin` or `local-lvm`.
 #### ❌ Error: `CentOS Stream images may fail to boot when using UEFI`
 CentOS Stream images may fail to boot when using UEFI (`bios = "ovmf"`).
   - 🛠 **Fix** : Ensure your base image supports UEFI. If issues persist, switch to `bios = "seabios"`.
+
+#### ❌ VM ignores the static IP and gets one from DHCP instead
+The cloud-init `network_config` is using a format the guest OS doesn't understand (e.g. Netplan v2 on Rocky/RHEL), or `gateway` / `nic` are not set.
+  - 🛠 **Fix** : Set both `gateway` and `nic` explicitly in the `cloudinit` block. The `nic` name varies by machine type — run `ip link` inside your template to confirm (typically `ens18` for SCSI, `enp6s18` for virtio on q35).
+
+#### ❌ Password set via `set_user_password`/`user_password` is not working
+Cloud-init may have failed schema validation, causing the password module to be skipped. Verify with:
+```bash
+sudo cloud-init status --long
+sudo cloud-init schema --system
+```
+Common causes:
+  - **`cloud-config failed schema validation`**: Check the schema output for unexpected properties. Run `sudo cloud-init schema --system` for the full error list.
+  - **`Not unlocking password ... no 'passwd'/'hashed_passwd' provided`**: The password was not embedded in the `users:` block. This is resolved in the current module version.
+  - 🛠 **Fix** : Ensure you are using the latest module version and redeploy with `terraform destroy && terraform apply`.
 
 ## 🤝 Contributing
 Contributions, issues, and feature requests are welcome. To contribute:
