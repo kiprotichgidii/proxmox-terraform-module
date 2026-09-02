@@ -12,8 +12,8 @@ terraform {
 
 # Proxmox VM Resource
 module "proxmox_vm" {
-  source = "./modules/proxmox-vm"
-  #source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+  #source = "./modules/proxmox-vm"
+  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
   # provider Variables
   proxmox_api_url = var.proxmox_api_url
   proxmox_user    = var.proxmox_user
@@ -24,7 +24,7 @@ module "proxmox_vm" {
   generate_ssh_key         = false
   # Qemu VM variables
   #vm_count         = 2
-  vm_name          = "Test-RL-10"
+  vm_name          = "Rocky-Linux-10"
   node             = "pve02"
   cpu_cores        = 2
   cpu_sockets      = 1
