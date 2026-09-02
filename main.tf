@@ -24,40 +24,41 @@ module "proxmox_vm" {
   generate_ssh_key         = false
   # Qemu VM variables
   #vm_count         = 2
-  vm_name          = "AmazonLinux"
-  node             = "proxmox-pve01"
+  vm_name          = "Koriri-Rocky-Linux"
+  node             = "pve02"
   cpu_cores        = 2
   cpu_sockets      = 1
   memory           = 4096
   bios             = "ovmf"
   boot_order       = "order=scsi0;ide2"
-  template_id      = 9002
+  template_id      = 8807
   clone            = true
-  storage_pool     = "nvme-storage"
+  storage_pool     = "local-lvm"
   iso_storage_pool = "local"
   disks = [
     {
       size    = "50G"
-      storage = "nvme-storage"
+      storage = "zfs-pool"
       type    = "disk"
       slot    = "scsi0"
-      format  = "qcow2"
+      format  = "raw"
     }
   ]
   networks = [
     {
-      id     = "10"
+      id     = "0"
       bridge = "vmbr0"
       model  = "virtio"
-      tag    = "30"
+      #tag    = "30"
     }
   ]
   cloudinit = {
-    user_fullname = "Gedion Kiprotich"
+    user_name     = "korir"
+    user_fullname = "Nai Korir"
     timezone      = "Africa/Nairobi"
-    #ip_address        = "172.20.30.10/24"
-    #gateway           = "172.20.30.1"
-    enable_dhcp = true
+    ip_address  = "192.168.1.61/24"
+    gateway     = "192.168.1.1"
+    #nic         = "enp6s18"
   }
 
 }

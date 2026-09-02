@@ -1,18 +1,19 @@
-#cloud-config
-version: 2
-ethernets:
-  alleths:
-    match:
-      name: "en*"
-%{ if enable_dhcp }
-    dhcp4: true
-%{ else }
-    dhcp4: no
-    addresses: [${ip_address}]
-    gateway4: ${gateway}
-    nameservers:
-      addresses:
-      %{ for dns in dns_servers ~}
-        - ${dns}
-      %{ endfor ~}
-%{ endif }
+version: 1
+config:
+%{ if enable_dhcp ~}
+  - type: physical
+    name: ${nic}
+    subnets:
+      - type: dhcp
+%{ else ~}
+  - type: physical
+    name: ${nic}
+    subnets:
+      - type: static
+        address: ${ip_address}
+        gateway: ${gateway}
+        dns_nameservers:
+%{ for dns in dns_servers ~}
+          - ${dns}
+%{ endfor ~}
+%{ endif ~}
