@@ -13,17 +13,21 @@ users:
     gecos: ${user_fullname}
     sudo: ALL=(ALL) NOPASSWD:ALL
     lock_passwd: ${lock_user_password}
+%{ if set_user_password ~}
+    hashed_passwd: ${user_password}
+%{ endif ~}
     shell: ${user_shell}
     ssh_authorized_keys:
     %{~ for ssh_key in authorized_keys ~}
       - ${ssh_key}
     %{~ endfor ~}
-    groups: sudo
-    home: /home/${user_name}
-    manage_home: true
+    groups: [sudo]
   - name: root
     gecos: root
     lock_passwd: ${lock_root_user_password}
+%{ if set_root_password ~}
+    hashed_passwd: ${root_password}
+%{ endif ~}
     shell: /bin/bash
     ssh_authorized_keys:
     %{~ for ssh_key in authorized_keys ~}
@@ -31,19 +35,21 @@ users:
     %{~ endfor ~}
 
 # Set User Password
+%{ if set_any_password ~}
 chpasswd:
   expire: false
   users:
   %{~ if set_user_password ~}
     - name: ${user_name}
-      password: ${user_password}
+      passwd: ${user_password}
       type: crypted
   %{~ endif ~}
   %{~ if set_root_password ~}
     - name: root
-      password: ${root_password}
+      passwd: ${root_password}
       type: crypted
   %{~ endif ~}
+%{ endif ~}
 
 # Grow the root partition to fill the disk
 growpart:
