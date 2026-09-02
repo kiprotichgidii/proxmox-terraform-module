@@ -152,7 +152,9 @@ variable "cloudinit" {
     disable_ssh_root_login   = optional(bool, true)
     lock_root_user_password  = optional(bool, false)
     set_root_password        = optional(bool, false)
+    root_password            = optional(string, null) # Plaintext; overrides set_root_password auto-generation
     set_user_password        = optional(bool, false)
+    user_password            = optional(string, null) # Plaintext; overrides set_user_password auto-generation
     lock_user_password       = optional(bool, false)
     user_fullname            = optional(string, "Cloud User")
     user_shell               = optional(string, "/bin/bash")
