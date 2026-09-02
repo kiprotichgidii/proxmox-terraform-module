@@ -4,9 +4,19 @@ locals {
   pve_node         = var.node
   iso_storage_pool = var.iso_storage_pool
 
-  # Hash the user password
-  root_password_hash = var.cloudinit.set_root_password ? bcrypt(random_password.root_password[0].result) : ""
-  user_password_hash = var.cloudinit.set_user_password ? bcrypt(random_password.user_password[0].result) : ""
+  # Whether to set a password at all — true if either a plaintext password was
+  # directly provided OR the auto-generate flag is enabled.
+  should_set_user_password = var.cloudinit.user_password != null || var.cloudinit.set_user_password
+  should_set_root_password = var.cloudinit.root_password != null || var.cloudinit.set_root_password
+
+  # The plaintext to hash: provided password takes precedence over auto-generated.
+  plaintext_user_password = var.cloudinit.user_password != null ? var.cloudinit.user_password : (var.cloudinit.set_user_password ? random_password.user_password[0].result : "")
+  plaintext_root_password = var.cloudinit.root_password != null ? var.cloudinit.root_password : (var.cloudinit.set_root_password ? random_password.root_password[0].result : "")
+
+  # Hash the user password — read from terraform_data to avoid bcrypt() being
+  # re-evaluated on every plan (bcrypt is non-deterministic; see main.tf).
+  root_password_hash = local.should_set_root_password ? terraform_data.root_password_hash[0].output : ""
+  user_password_hash = local.should_set_user_password ? terraform_data.user_password_hash[0].output : ""
 
   # SSH connection
   generated_ssh_key = var.generate_ssh_key ? [trimspace(tls_private_key.ssh_key[0].public_key_openssh)] : []

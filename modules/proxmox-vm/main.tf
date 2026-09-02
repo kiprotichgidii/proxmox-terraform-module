@@ -1,18 +1,41 @@
 #============================================================
 # Random Resource Creation
 #============================================================
+
+# Only auto-generate if no plaintext password was directly provided.
 resource "random_password" "root_password" {
-  count            = var.cloudinit.set_root_password ? 1 : 0
+  count            = var.cloudinit.set_root_password && var.cloudinit.root_password == null ? 1 : 0
   length           = 8
   special          = true
   override_special = "_%@"
 }
 
 resource "random_password" "user_password" {
-  count            = var.cloudinit.set_user_password ? 1 : 0
+  count            = var.cloudinit.set_user_password && var.cloudinit.user_password == null ? 1 : 0
   length           = 8
   special          = true
   override_special = "_%@"
+}
+
+# bcrypt() in Terraform is non-deterministic — it generates a new salt on every
+# plan/apply, which means the hash in the cloud-init ISO would change on every
+# run, invalidating the plaintext. terraform_data stores the hash in state so it
+# is computed exactly once and only re-hashes when the source password changes.
+resource "terraform_data" "user_password_hash" {
+  count = local.should_set_user_password ? 1 : 0
+
+  # Re-hash only when the plaintext source changes.
+  triggers_replace = [local.plaintext_user_password]
+
+  input = bcrypt(local.plaintext_user_password)
+}
+
+resource "terraform_data" "root_password_hash" {
+  count = local.should_set_root_password ? 1 : 0
+
+  triggers_replace = [local.plaintext_root_password]
+
+  input = bcrypt(local.plaintext_root_password)
 }
 
 resource "tls_private_key" "ssh_key" {
@@ -25,15 +48,17 @@ resource "tls_private_key" "ssh_key" {
 #  File Creation
 # ============================================================
 
+# Only write password files for auto-generated passwords — the user already
+# knows a plaintext password they provided themselves.
 resource "local_sensitive_file" "root_password" {
-  count           = var.cloudinit.set_root_password ? 1 : 0
+  count           = var.cloudinit.set_root_password && var.cloudinit.root_password == null ? 1 : 0
   content         = random_password.root_password[count.index].result
   filename        = "${path.cwd}/root_password.txt"
   file_permission = "0600"
 }
 
 resource "local_sensitive_file" "user_password" {
-  count           = var.cloudinit.set_user_password ? 1 : 0
+  count           = var.cloudinit.set_user_password && var.cloudinit.user_password == null ? 1 : 0
   content         = random_password.user_password[count.index].result
   filename        = "${path.cwd}/user_password.txt"
   file_permission = "0600"
@@ -71,14 +96,15 @@ resource "proxmox_cloud_init_disk" "cloudinit_ci" {
     enable_ssh_password_auth = var.cloudinit.enable_ssh_password_auth
     disable_ssh_root_login   = var.cloudinit.disable_ssh_root_login
     lock_root_user_password  = var.cloudinit.lock_root_user_password
-    set_root_password        = var.cloudinit.set_root_password
+    set_root_password        = local.should_set_root_password
     root_password            = local.root_password_hash
     user_name                = var.cloudinit.user_name
     user_fullname            = var.cloudinit.user_fullname
     user_shell               = var.cloudinit.user_shell
     user_password            = local.user_password_hash
-    set_user_password        = var.cloudinit.set_user_password
+    set_user_password        = local.should_set_user_password
     lock_user_password       = var.cloudinit.lock_user_password
+    set_any_password         = local.should_set_user_password || local.should_set_root_password
     authorized_keys          = local.combined_ssh_keys
     disable_ipv6             = var.cloudinit.disable_ipv6
     package_update           = var.cloudinit.package_update
