@@ -179,7 +179,6 @@ output "vm_ip_addresses" {
 output "ssh_commands" {
   value = module.proxmox_vm.ssh_commands
 }
-
 ```
 
 ## ⚙️ Configuration Reference
@@ -202,67 +201,94 @@ output "ssh_commands" {
 | `vm_count` | number | `1` | Number of VM copies to create. |
 | `node` | string | `"pve01"` | Target Proxmox Node. |
 | `template_id` | number | `null` | ID of the template to clone. |
+| `clone` | bool | `null` | Whether to clone from a template (`true`) or create fresh. |
+| `iso` | string | `null` | ISO image path to use when not cloning (e.g. `"local:iso/debian.iso"`). |
 | `cpu_cores` | number | `2` | Number of CPU cores per socket. |
 | `cpu_sockets` | number | `1` | Number of CPU sockets. |
 | `memory` | number | `2048` | RAM in MB. |
-| `bios` | string | `"seabios"` | BIOS type: `"seabios"` (default) or `"ovmf"` (UEFI). |
-| `boot_order` | string | `...` | Boot order string (e.g., `"order=scsi0;ide2;net0"`). |
+| `bios` | string | `"seabios"` | BIOS type: `"seabios"` (legacy) or `"ovmf"` (UEFI). |
+| `machine_type` | string | `"q35"` | Machine type (e.g. `"q35"`, `"i440fx"`). |
+| `boot_order` | string | `"order=scsi0;ide2;net0"` | Boot order string. |
+| `scsi_hardware` | string | `"virtio-scsi-single"` | SCSI controller type. |
+| `vm_state` | string | `"running"` | Desired VM state: `"running"`, `"stopped"`, or `"started"`. |
+| `autostart` | bool | `true` | Start VM automatically when the Proxmox host boots. |
+| `qemu_agent` | number | `1` | Enable (`1`) or disable (`0`) the QEMU Guest Agent. |
+| `agent_timeout` | number | `180` | Seconds to wait for the QEMU Guest Agent to respond. |
+| `skip_ipv6` | bool | `true` | Tell Proxmox not to wait for an IPv6 address from the guest agent. |
+| `storage_pool` | string | `"local-lvm"` | Default storage pool for VM disks and EFI disk. |
+| `iso_storage_pool` | string | `"local"` | Storage pool for the generated cloud-init ISO. Must be file-based (e.g. `local`). |
+| `tags` | list(string) | `[]` | List of Proxmox tags to apply to the VM. |
+| `generate_ssh_key` | bool | `true` | Auto-generate an RSA SSH key pair and save to disk. |
+| `ssh_keys` | list(string) | `[]` | List of existing SSH public keys to inject into the VM. |
 
 ### Storage (`disks`)
 List of objects with the following properties:
-- `size` (Required): Disk size (e.g., `"20G"`).
-- `storage` (Required): Proxmox storage pool name.
-- `type`: Disk type (`"disk"`, `"cdrom"`, etc.).
-- `slot`: Bus/Slot (e.g., `"scsi0"`, `"ide1"`).
-- `format`: Disk format (`"qcow2"`, `"raw"`).
-- `cache`: Caching mode (`"writeback"`, `"none"`, etc.).
-- `discard`: Enable discard/trim (Default: `true`).
+
+| Key | Required | Default | Description |
+|-----|:--------:|---------|-------------|
+| `size` | Yes | — | Disk size (e.g. `"20G"`). |
+| `storage` | Yes | — | Proxmox storage pool name. |
+| `type` | Yes | — | Disk role: `"disk"`, `"cdrom"`. |
+| `slot` | Yes | — | Bus/slot identifier (e.g. `"scsi0"`, `"ide1"`). |
+| `format` | No | `"qcow2"` | Disk image format: `"qcow2"`, `"raw"`. |
+| `cache` | No | `"writeback"` | Caching mode: `"writeback"`, `"none"`, `"directsync"`, etc. |
+| `discard` | No | `true` | Enable discard/TRIM passthrough. |
+| `iothread` | No | `false` | Enable a dedicated I/O thread for this disk (improves performance). |
 
 ### Networking (`networks`)
 List of objects with the following properties:
-- `id`: Network Interface ID (0, 1, 2...).
-- `bridge`: Bridge name (e.g., `"vmbr0"`).
-- `model`: Interface model (Default: `"virtio"`).
-- `macaddr`: Static MAC address (optional).
-- `firewall`: Enable Proxmox firewall (Default: `false`).
 
-### Cloud-Init Support(`cloudinit`)
-Configuration object for the VM internals:
+| Key | Required | Default | Description |
+|-----|:--------:|---------|-------------|
+| `id` | Yes | — | Network interface index (e.g. `"0"`, `"1"`). |
+| `bridge` | Yes | — | Proxmox bridge name (e.g. `"vmbr0"`). |
+| `model` | Yes | — | NIC model (e.g. `"virtio"`, `"e1000"`). |
+| `tag` | No | `null` | VLAN tag ID. |
+| `macaddr` | No | `null` | Static MAC address. |
+| `firewall` | No | `false` | Enable Proxmox firewall on this interface. |
+
+### Cloud-Init (`cloudinit`)
+Configuration object for in-guest settings applied via Cloud-Init:
+
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `user_name` | string | `"cloud-user"`| Default SSH user. |
-| `hostname` | string | `""` | Custom hostname. |
-| `timezone` | string | `"UTC"` | System timezone. |
-| `manage_etc_hosts` | bool | `true` | Allow Cloud-Init to manage /etc/hosts. |
-| `preserve_hostname` | bool | `true` | Preserve hostname across reboots. |
-| `enable_ssh_password_auth`| bool | `false` | Allow password auth for SSH. |
-| `disable_ssh_root_login` | bool | `true` | Disable SSH root login. |
-| `lock_root_user_password` | bool | `false` | Lock root password. |
-| `set_root_password` | bool | `false` | Generate random root password. |
-| `set_user_password` | bool | `false` | Generate random user password. |
-| `lock_user_password` | bool | `false` | Lock default user password. |
-| `user_fullname` | string | `"Cloud User"` | Full name (GECOS). |
+| `user_name` | string | `"cloud-user"` | Default SSH/login user. |
+| `user_fullname` | string | `"Cloud User"` | Full name (GECOS field). |
 | `user_shell` | string | `"/bin/bash"` | Default user shell. |
-| `disable_ipv6` | bool | `false` | Disable IPv6 networking. |
-| `package_update` | bool | `true` | Run `apt-get update`. |
-| `package_upgrade` | bool | `true` | Run `apt-get upgrade`. |
-| `ip_address` | string | `"192.168.1.254/24"` | Static IP (CIDR format). |
-| `nic` | string | `"ens18"` | Interface name (e.g., `ens18`). |
-| `gateway` | string | `"192.168.1.1"` | Network gateway. |
-| `enable_dhcp` | bool | `true` | Enable DHCP (overrides static). |
-| `packages` | list | `[...]` | List of `apt` packages to install. |
-| `runcmds` | list | `[...]` | List of shell commands to run on first boot. |
-| `dns_servers` | list | `[...]` | List of DNS servers. |
+| `hostname` | string | `""` | Custom hostname (defaults to `<vm_name>-<index>`). |
+| `timezone` | string | `"UTC"` | System timezone (e.g. `"Africa/Nairobi"`). |
+| `manage_etc_hosts` | bool | `true` | Allow Cloud-Init to manage `/etc/hosts`. |
+| `preserve_hostname` | bool | `true` | Preserve hostname across reboots. |
+| `enable_ssh_password_auth` | bool | `false` | Allow password-based SSH authentication. |
+| `disable_ssh_root_login` | bool | `true` | Disable SSH login as root. |
+| `lock_root_user_password` | bool | `false` | Lock the root account password. |
+| `set_root_password` | bool | `false` | Auto-generate a random root password (saved to `root_password.txt`). |
+| `set_user_password` | bool | `false` | Auto-generate a random user password (saved to `user_password.txt`). |
+| `lock_user_password` | bool | `false` | Lock the default user password. |
+| `disable_ipv6` | bool | `false` | Disable IPv6 networking via sysctl. |
+| `ip_address` | string | `"192.168.1.254/24"` | Static IP in CIDR format. Used when `enable_dhcp = false`. |
+| `gateway` | string | `"192.168.1.1"` | Default gateway. Used when `enable_dhcp = false`. |
+| `nic` | string | `"ens18"` | Network interface name inside the guest (e.g. `"enp6s18"` for virtio on q35). |
+| `enable_dhcp` | bool | `false` | Use DHCP instead of a static IP. When `true`, `ip_address` and `gateway` are ignored. |
+| `dns_servers` | list(string) | `["8.8.8.8", "8.8.4.4"]` | List of DNS resolver addresses. |
+| `package_update` | bool | `true` | Run package index update on first boot. |
+| `package_upgrade` | bool | `true` | Run full package upgrade on first boot. |
+| `packages` | list(string) | `["qemu-guest-agent", "vim", ...]` | Additional packages to install on first boot. |
+| `runcmds` | list(string) | `["systemctl enable --now qemu-guest-agent", ...]` | Shell commands to execute on first boot. |
 
 ## 📤 Outputs
 
 | Name | Description |
 |------|-------------|
-| `vmid` | The assigned VM ID(s). |
-| `vm_ip_addresses` | Map of VM names to their IP addresses (if detected). |
-| `ssh_commands` | Ready-to-use SSH connection strings. |
-| `root_password` | The generated root password (if enabled). |
-| `ssh_user` | The configured username. |
+| `vmid` | Map of VM name → assigned VM ID. |
+| `name` | Map of VM name → VM name (for reference). |
+| `node` | Map of VM name → Proxmox node the VM was created on. |
+| `status` | Map of VM name → current VM state (`running`, `stopped`). |
+| `vm_ip_addresses` | Map of VM name → primary IPv4 address (reported by guest agent). |
+| `ssh_user` | Map of VM name → configured SSH username. |
+| `ssh_user_password` | Map of VM name → generated user password (sensitive, if `set_user_password = true`). |
+| `root_password` | Map of VM name → generated root password (sensitive, if `set_root_password = true`). |
+| `ssh_commands` | Map of VM name → ready-to-use `ssh` command string. |
 
 ## ⚠️ Common Issues & Troubleshooting
 
