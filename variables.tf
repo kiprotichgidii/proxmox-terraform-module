@@ -198,3 +198,38 @@ variable "cloudinit" {
   })
   default = {}
 }
+
+# ============================================================
+# cicustom / Snippets Upload Variables
+# ============================================================
+
+variable "proxmox_node_host" {
+  description = "IP or hostname of the Proxmox node for SSH snippet uploads. Defaults to the host parsed from proxmox_api_url."
+  type        = string
+  default     = ""
+}
+
+variable "proxmox_ssh_user" {
+  description = "SSH user on the Proxmox node (usually root)"
+  type        = string
+  default     = "root"
+}
+
+variable "proxmox_ssh_private_key_path" {
+  description = "Local path to the SSH private key used to authenticate to the Proxmox node (e.g. ~/.ssh/id_rsa)"
+  type        = string
+  default     = "~/.ssh/id_rsa"
+}
+
+variable "snippets_storage" {
+  description = "Proxmox storage pool with Snippets content type enabled (used for cicustom and cloudinit_cdrom_storage)"
+  type        = string
+  default     = "local"
+}
+
+variable "snippets_storage_path" {
+  description = "Absolute filesystem path on the Proxmox node where snippets are stored (e.g. /var/lib/vz/snippets)"
+  type        = string
+  default     = "/var/lib/vz/snippets"
+}
+

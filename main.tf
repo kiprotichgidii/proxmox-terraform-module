@@ -52,6 +52,13 @@ module "proxmox_vm" {
 
   # --- Cloud-Init ---
   cloudinit = var.cloudinit
+
+  # cicustom / Snippets upload
+  proxmox_node_host       = var.proxmox_node_host
+  proxmox_ssh_user        = var.proxmox_ssh_user
+  proxmox_ssh_private_key = file(pathexpand(var.proxmox_ssh_private_key_path))
+  snippets_storage        = var.snippets_storage
+  snippets_storage_path   = var.snippets_storage_path
 }
 
 # ============================================================

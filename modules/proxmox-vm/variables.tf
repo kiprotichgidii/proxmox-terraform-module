@@ -272,3 +272,37 @@ variable "skip_ipv6" {
   type        = bool
   default     = true
 }
+
+# ============================================================
+# cicustom / Snippets Upload Variables
+# ============================================================
+
+variable "proxmox_node_host" {
+  description = "IP or hostname of the Proxmox node used for SSH snippet uploads. Defaults to the host parsed from proxmox_api_url."
+  type        = string
+  default     = ""
+}
+
+variable "proxmox_ssh_user" {
+  description = "SSH user for uploading cloud-init snippets to the Proxmox node"
+  type        = string
+  default     = "root"
+}
+
+variable "proxmox_ssh_private_key" {
+  description = "SSH private key content (not a path) for authenticating to the Proxmox node"
+  type        = string
+  sensitive   = true
+}
+
+variable "snippets_storage" {
+  description = "Proxmox storage pool that has the Snippets content type enabled. Used in cicustom and cloudinit_cdrom_storage."
+  type        = string
+  default     = "local"
+}
+
+variable "snippets_storage_path" {
+  description = "Absolute filesystem path on the Proxmox node where snippets are stored (e.g. /var/lib/vz/snippets for the default local storage)"
+  type        = string
+  default     = "/var/lib/vz/snippets"
+}

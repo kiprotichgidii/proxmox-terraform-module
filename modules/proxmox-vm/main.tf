@@ -79,56 +79,91 @@ resource "local_sensitive_file" "ssh_public_key" {
 }
 
 # ============================================================
-#  Generate Cloudinit ISO
+#  Upload Cloud-Init Snippets to Proxmox via SSH
+#
+#  Proxmox's Cloud-Init tab only recognises a drive registered
+#  as type "cloudinit" (set via cloudinit_cdrom_storage below).
+#  cicustom then points Proxmox at our custom YAML files so we
+#  keep full template control while the UI tab works correctly.
+#
+#  Pre-requisite: enable the Snippets content type on the
+#  target storage pool in the Proxmox UI or via:
+#    pvesm set local --content images,rootdir,vztmpl,iso,backup,snippets
 # ============================================================
-resource "proxmox_cloud_init_disk" "cloudinit_ci" {
-  count    = var.vm_count
-  name     = "${var.vm_name}-cloudinit-${count.index + 1}"
-  pve_node = local.pve_node
-  storage  = local.iso_storage_pool
-  #===========================================================
-  # user_data template
-  #===========================================================
-  user_data = templatefile("${path.module}/cloudinit-templates/user_data.tpl", {
-    timezone                 = var.cloudinit.timezone
-    manage_etc_hosts         = var.cloudinit.manage_etc_hosts
-    preserve_hostname        = var.cloudinit.preserve_hostname
-    enable_ssh_password_auth = var.cloudinit.enable_ssh_password_auth
-    disable_ssh_root_login   = var.cloudinit.disable_ssh_root_login
-    lock_root_user_password  = var.cloudinit.lock_root_user_password
-    set_root_password        = local.should_set_root_password
-    root_password            = local.root_password_hash
-    user_name                = var.cloudinit.user_name
-    user_fullname            = var.cloudinit.user_fullname
-    user_shell               = var.cloudinit.user_shell
-    user_password            = local.user_password_hash
-    set_user_password        = local.should_set_user_password
-    lock_user_password       = var.cloudinit.lock_user_password
-    set_any_password         = local.should_set_user_password || local.should_set_root_password
-    authorized_keys          = local.combined_ssh_keys
-    disable_ipv6             = var.cloudinit.disable_ipv6
-    package_update           = var.cloudinit.package_update
-    package_upgrade          = var.cloudinit.package_upgrade
-    packages                 = var.cloudinit.packages
-    runcmds                  = var.cloudinit.runcmds
-  })
-  #===========================================================
-  # meta_data template
-  #===========================================================
-  meta_data = templatefile("${path.module}/cloudinit-templates/meta_data.tpl", {
-    instance_id = sha1(local.vm_name)
-    hostname    = var.cloudinit.hostname != "" ? var.cloudinit.hostname : "${local.vm_name}-${count.index + 1}"
-  })
-  #===========================================================
-  # network_config template
-  #===========================================================
-  network_config = templatefile("${path.module}/cloudinit-templates/network_config.tpl", {
-    enable_dhcp = var.cloudinit.enable_dhcp
-    ip_address  = local.generated_ips[count.index]
-    nic         = var.cloudinit.nic
-    gateway     = var.cloudinit.gateway
-    dns_servers = var.cloudinit.dns_servers
-  })
+
+# Upload rendered cloud-init snippets to the Proxmox node.
+# Runs on create; re-runs whenever rendered content changes.
+resource "null_resource" "upload_cloudinit" {
+  count = var.vm_count
+
+  triggers = {
+    user_data_content      = local.rendered_user_data[count.index]
+    network_config_content = local.rendered_network_config[count.index]
+    meta_data_content      = local.rendered_meta_data[count.index]
+    user_data_file         = local.snippet_user_data_files[count.index]
+    network_config_file    = local.snippet_network_files[count.index]
+    meta_data_file         = local.snippet_meta_files[count.index]
+    snippets_path          = var.snippets_storage_path
+  }
+
+  connection {
+    type        = "ssh"
+    host        = local.pve_ssh_host
+    user        = var.proxmox_ssh_user
+    private_key = var.proxmox_ssh_private_key
+  }
+
+  provisioner "file" {
+    content     = self.triggers.user_data_content
+    destination = "${self.triggers.snippets_path}/${self.triggers.user_data_file}"
+  }
+
+  provisioner "file" {
+    content     = self.triggers.network_config_content
+    destination = "${self.triggers.snippets_path}/${self.triggers.network_config_file}"
+  }
+
+  provisioner "file" {
+    content     = self.triggers.meta_data_content
+    destination = "${self.triggers.snippets_path}/${self.triggers.meta_data_file}"
+  }
+}
+
+# Remove snippet files from Proxmox when the VM is destroyed.
+# Kept as a separate resource so its connection block can reference
+# only self.triggers (destroy-time provisioner restriction in OpenTofu).
+resource "null_resource" "cleanup_cloudinit" {
+  count = var.vm_count
+
+  # Mirror the same triggers so cleanup fires whenever upload fires.
+  triggers = {
+    user_data_file      = local.snippet_user_data_files[count.index]
+    network_config_file = local.snippet_network_files[count.index]
+    meta_data_file      = local.snippet_meta_files[count.index]
+    snippets_path       = var.snippets_storage_path
+    pve_ssh_host        = local.pve_ssh_host
+    ssh_user            = var.proxmox_ssh_user
+    # Store the key in triggers so it's accessible during destroy.
+    # Marked sensitive in the variable declaration.
+    ssh_private_key     = var.proxmox_ssh_private_key
+  }
+
+  provisioner "remote-exec" {
+    when = destroy
+    inline = [
+      "rm -f ${self.triggers.snippets_path}/${self.triggers.user_data_file}",
+      "rm -f ${self.triggers.snippets_path}/${self.triggers.network_config_file}",
+      "rm -f ${self.triggers.snippets_path}/${self.triggers.meta_data_file}",
+    ]
+    connection {
+      type        = "ssh"
+      host        = self.triggers.pve_ssh_host
+      user        = self.triggers.ssh_user
+      private_key = self.triggers.ssh_private_key
+    }
+  }
+
+  depends_on = [null_resource.upload_cloudinit]
 }
 
 # ============================================================
@@ -155,6 +190,14 @@ resource "proxmox_vm_qemu" "qemu_vm" {
   vm_state           = var.vm_state
   skip_ipv6          = var.skip_ipv6
 
+  # Use Proxmox's native cloud-init drive so the Cloud-Init tab is visible in the UI.
+  # cicustom overrides the drive content with our custom rendered snippets.
+  cicustom = join(",", [
+    "user=${var.snippets_storage}:snippets/${local.snippet_user_data_files[count.index]}",
+    "network=${var.snippets_storage}:snippets/${local.snippet_network_files[count.index]}",
+    "meta=${var.snippets_storage}:snippets/${local.snippet_meta_files[count.index]}",
+  ])
+
   # Disk Configuration
   dynamic "disk" {
     for_each = var.disks
@@ -168,12 +211,15 @@ resource "proxmox_vm_qemu" "qemu_vm" {
       discard = lookup(disk.value, "discard", true)
     }
   }
-  # Define a disk block for the generated cloud-init disk
+
+  # Native Proxmox cloud-init drive — makes the Cloud-Init tab visible in the UI
   disk {
-    type = "cdrom"
-    slot = "ide2"
-    iso  = proxmox_cloud_init_disk.cloudinit_ci[count.index].id
+    type    = "cloudinit"
+    slot    = "ide2"
+    storage = var.snippets_storage
   }
+
+
   # EFI disk for UEFI Boot
   dynamic "efidisk" {
     for_each = var.bios == "ovmf" ? [1] : []
@@ -182,11 +228,13 @@ resource "proxmox_vm_qemu" "qemu_vm" {
       storage = var.storage_pool
     }
   }
+
   # Serial Console
   serial {
     id   = 0
     type = "socket"
   }
+
   # Network Configuration
   dynamic "network" {
     for_each = var.networks
@@ -199,6 +247,7 @@ resource "proxmox_vm_qemu" "qemu_vm" {
       firewall = lookup(network.value, "firewall", false)
     }
   }
+
   # Lifecycle
   lifecycle {
     postcondition {
@@ -207,7 +256,8 @@ resource "proxmox_vm_qemu" "qemu_vm" {
     }
   }
 
-  depends_on = [proxmox_cloud_init_disk.cloudinit_ci]
+  # Snippets must exist on the Proxmox node before the VM is created
+  depends_on = [null_resource.upload_cloudinit, null_resource.cleanup_cloudinit]
 }
 
 #============================================================
