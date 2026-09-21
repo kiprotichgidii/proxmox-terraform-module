@@ -18,8 +18,8 @@ terraform {
 # ============================================================
 
 module "proxmox_vm" {
-  source = "./modules/proxmox-vm"
-  #source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
+  #source = "./modules/proxmox-vm"
+  source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=feat/cicustom-cloudinit"
 
   # --- Provider ---
   proxmox_api_url          = var.proxmox_api_url
