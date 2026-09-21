@@ -60,36 +60,24 @@ pveum user token add terraform-prov@pve mytoken
 For some reason, using an API token with privilege separation on, does not work with Terraform. On your PVE console. go to Datacenter => Permissions => API Tokens => Click on the API token you just created => Disable privilege separation, and everything should work as expected.
 
 ## 🛠 Usage
-### Create Proxmox VM Template
 
-To use this modules, you need a VM template which will be clonesd by Terraform. Create a template using the disto's cloud image, e.g Debian, Ubuntu, etc.
+### Create a Proxmox VM Template
+
+You need a VM template to clone from. Create one from a cloud image, e.g. Ubuntu:
+
 ```bash
 qm create 9003 --name ubuntu24-template
 qm set 9003 --scsi0 local-lvm:0,import-from=/root/cloud-images/ubuntu-24.04-server-cloudimg-amd64.img
 qm template 9003
 ```
 
-### Create a main.tf file and a variables.tf file
+### tfvars-driven workflow (recommended)
 
-```bash
-touch main.tf && touch variables.tf
-```
-Copy paste the content from the `main.tf` and `variables.tf` file in the `example` folder to match your Proxmox environment and configure your VM resources. Then create a terraform.tfvars file and add your variables as follows:
+All VM configuration lives in `terraform.tfvars` — `main.tf` and `variables.tf` stay unchanged between deployments. To provision a different VM, just update the tfvars file (or create a new one and pass it with `-var-file=prod.tfvars`).
 
-```bash
-cat <<EOF > terraform.tfvars
+**`main.tf`** — wire the module, reference variables only:
 
-proxmox_api_url          = "https://your-proxmox-ip:8006/api2/json"
-proxmox_user             = "terraform@pve"
-proxmox_api_token_id     = "your-token-id"
-proxmox_api_token_secret = "your-token-secret"
-
-EOF
-```
-
-### Example: Static IP, Multiple Disks, UEFI
 ```hcl
-# Terraform Provider Versions
 terraform {
   required_version = ">= 1.10.0"
 
@@ -101,87 +89,110 @@ terraform {
   }
 }
 
-# Proxmox VM Resource
 module "proxmox_vm" {
-  #source = "./modules/proxmox-vm"
   source = "git::https://github.com/kiprotichgidii/proxmox-terraform-module.git//modules/proxmox-vm?ref=main"
-  # provider Variables
-  proxmox_api_url = var.proxmox_api_url
-  proxmox_user    = var.proxmox_user
-  #proxmox_password = var.proxmox_password
+
+  # Provider
+  proxmox_api_url          = var.proxmox_api_url
+  proxmox_user             = var.proxmox_user
   proxmox_api_token_id     = var.proxmox_api_token_id
   proxmox_api_token_secret = var.proxmox_api_token_secret
-  ssh_keys                 = var.ssh_keys
-  generate_ssh_key         = false
-  # Qemu VM variables
-  #vm_count         = 2
-  vm_name          = "Rocky-Linux-10"
-  node             = "pve02"
-  cpu_cores        = 2
-  cpu_sockets      = 1
-  memory           = 4096
-  bios             = "ovmf"
-  boot_order       = "order=scsi0;ide2"
-  template_id      = 8807
-  clone            = true
-  storage_pool     = "local-lvm"
-  iso_storage_pool = "local"
-  disks = [
-    {
-      size    = "50G"
-      storage = "zfs-pool"
-      type    = "disk"
-      slot    = "scsi0"
-      format  = "raw"
-    },
-    {
-      size    = "40G"
-      storage = "zfs-pool"
-      type    = "disk"
-      slot    = "scsi1"
-      format  = "raw"
-      cache   = "writeback"
-    }
-  ]
-  networks = [
-    {
-      id     = "0"
-      bridge = "vmbr0"
-      model  = "virtio"
-      #tag    = "30"
-    }
-  ]
-  cloudinit = {
-    user_name     = "korir"
-    user_fullname = "Nai Korir"
-    user_password = "Password@123!"
-    timezone      = "Africa/Nairobi"
-    ip_address  = "192.168.1.62/24"
-    gateway     = "192.168.1.1"
-    #nic         = "enp6s18"
-    enable_ssh_password_auth = true
+
+  # SSH
+  ssh_keys         = var.ssh_keys
+  generate_ssh_key = var.generate_ssh_key
+
+  # QEMU / VM
+  vm_name          = var.vm_name
+  node             = var.node
+  cpu_cores        = var.cpu_cores
+  cpu_sockets      = var.cpu_sockets
+  memory           = var.memory
+  bios             = var.bios
+  boot_order       = var.boot_order
+  template_id      = var.template_id
+  clone            = var.clone
+  storage_pool     = var.storage_pool
+  iso_storage_pool = var.iso_storage_pool
+
+  # Disks / Networks / Cloud-Init
+  disks     = var.disks
+  networks  = var.networks
+  cloudinit = var.cloudinit
+}
+
+output "vm_id"           { value = module.proxmox_vm.vmid }
+output "vm_name"         { value = module.proxmox_vm.name }
+output "ssh_user_name"   { value = module.proxmox_vm.ssh_user }
+output "vm_ip_addresses" { value = module.proxmox_vm.vm_ip_addresses }
+output "ssh_commands"    { value = module.proxmox_vm.ssh_commands }
+```
+
+**`terraform.tfvars`** — the only file you edit per deployment:
+
+```hcl
+# ── Provider ───────────────────────────────────────────────
+proxmox_api_url          = "https://192.168.1.3:8006/api2/json"
+proxmox_user             = "terraform@pve"
+proxmox_api_token_id     = "terraform@pve!tf-token"
+proxmox_api_token_secret = "your-token-secret"
+
+# ── SSH ────────────────────────────────────────────────────
+generate_ssh_key = false
+ssh_keys         = ["ssh-rsa AAAA... user@host"]
+
+# ── QEMU / VM ──────────────────────────────────────────────
+vm_name     = "Rocky-Linux-10"
+node        = "pve02"
+cpu_cores   = 2
+cpu_sockets = 1
+memory      = 4096
+bios        = "ovmf"
+boot_order  = "order=scsi0;ide2"
+template_id = 8807
+clone       = true
+
+storage_pool     = "local-lvm"
+iso_storage_pool = "local"
+
+# ── Disks ──────────────────────────────────────────────────
+disks = [
+  {
+    size    = "50G"
+    storage = "zfs-pool"
+    type    = "disk"
+    slot    = "scsi0"
+    format  = "raw"
+  },
+  {
+    size    = "40G"
+    storage = "zfs-pool"
+    type    = "disk"
+    slot    = "scsi1"
+    format  = "raw"
+    cache   = "writeback"
   }
+]
 
-}
+# ── Networks ───────────────────────────────────────────────
+networks = [
+  {
+    id     = "0"
+    bridge = "vmbr0"
+    model  = "virtio"
+    # tag  = 30
+  }
+]
 
-output "vm_id" {
-  value = module.proxmox_vm.vmid
-}
-
-output "vm_name" {
-  value = module.proxmox_vm.name
-}
-
-output "ssh_user_name" {
-  value = module.proxmox_vm.ssh_user
-}
-
-output "vm_ip_addresses" {
-  value = module.proxmox_vm.vm_ip_addresses
-}
-
-output "ssh_commands" {
-  value = module.proxmox_vm.ssh_commands
+# ── Cloud-Init ─────────────────────────────────────────────
+cloudinit = {
+  user_name                = "korir"
+  user_fullname            = "Nai Korir"
+  user_password            = "Password@123!"
+  timezone                 = "Africa/Nairobi"
+  ip_address               = "192.168.1.62/24"
+  gateway                  = "192.168.1.1"
+  enable_ssh_password_auth = true
 }
 ```
 

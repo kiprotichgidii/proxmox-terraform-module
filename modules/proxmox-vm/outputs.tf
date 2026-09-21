@@ -42,7 +42,8 @@ output "ssh_user_password" {
   description = "The SSH password for the VM (if set to be generated)"
   value = {
     for idx, vm in proxmox_vm_qemu.qemu_vm :
-    vm.name => try(var.cloudinit.set_user_password ? random_password.user_password[0].result : "")
+    # Only surface the auto-generated password; plaintext passwords are caller-managed.
+    vm.name => try(var.cloudinit.set_user_password && var.cloudinit.user_password == null ? random_password.user_password[0].result : "")
   }
   sensitive = true
 }
